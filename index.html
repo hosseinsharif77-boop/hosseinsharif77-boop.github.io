@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ست سنگ مصنوعی - سازنده ست</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #3a3a3a;
+      --secondary-color: #8b5a2b;
+      --accent-color: #d4a574;
+      --background-color: #f4f4f4;
+      --card-bg: #ffffff;
+      --text-color: #333;
+      --light-text: #fff;
+      --border-color: #e0e0e0;
+      --sidebar-bg: #333333;
+      --shadow: 0 4px 15px rgba(0,0,0,0.08);
+      --shadow-hover: 0 8px 25px rgba(0,0,0,0.12);
+      --transition-speed: 0.4s;
+      --header-height: 90px;
+      --sidebar-width: 350px;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* --- Accessibility & Focus Styles --- */
+    button:focus-visible, a:focus-visible, .product-card:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+      border-radius: 5px;
+    }
+    
+    /* --- Header --- */
+    header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: var(--light-text);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: var(--header-height);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .header-content {
+      text-align: center;
+      position: relative; /* Needed for positioning the mobile cart button */
+    }
+    .header-content h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .product-nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      list-style: none;
+    }
+
+    .product-nav li {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 50px;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      position: relative;
+    }
+    .product-nav li:hover, .product-nav li:focus {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      z-index: 1002;
+    }
+
+    .product-nav li.active {
+      background-color: var(--accent-color);
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    /* --- Main Content --- */
+    main {
+      max-width: 1000px;
+      margin: calc(var(--header-height) + 40px) auto 40px auto;
+      padding: 0 20px;
+      width: 100%;
+      transition: margin-right var(--transition-speed) ease-in-out;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    body.sidebar-open main {
+      margin-right: var(--sidebar-width);
+    }
+
+    /* --- Sidebar Cart --- */
+    .sidebar-cart {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background-color: var(--sidebar-bg);
+      color: var(--light-text);
+      padding-top: var(--header-height);
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+      overflow-y: auto;
+      transition: transform var(--transition-speed) ease-in-out;
+      transform: translateX(100%);
+    }
+    body.sidebar-open .sidebar-cart {
+        transform: translateX(0);
+    }
+    
+    /* --- Sidebar Toggle Button with Badge --- */
+    .sidebar-toggle {
+        position: fixed;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 60px;
+        background-color: var(--sidebar-bg);
+        border-radius: 10px 0 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--light-text);
+        font-size: 1rem;
+        box-shadow: -3px 0 10px rgba(0,0,0,0.2);
+        transition: all var(--transition-speed);
+        z-index: 1002;
+    }
+    .sidebar-toggle:hover {
+        background-color: var(--secondary-color);
+        width: 30px;
+    }
+    body.sidebar-open .sidebar-toggle {
+        right: calc(var(--sidebar-width) - 24px);
+        border-radius: 0 10px 10px 0;
+    }
+    .cart-badge {
+        position: absolute;
+        top: -8px;
+        left: -8px;
+        background-color: var(--danger-color);
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+        border: 2px solid var(--sidebar-bg);
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.3s ease;
+    }
+    .cart-badge.visible {
+        opacity: 1;
+        transform: scale(1);
+    }
+    .cart-badge.pop {
+        animation: numberPop 0.3s ease-out;
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid #444;
+        text-align: center;
+    }
+
+    .sidebar-header h2 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .sidebar-content {
+        flex-grow: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    /* --- Review Table --- */
+    .review-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: var(--card-bg);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+    .review-table th, .review-table td {
+        padding: 12px 15px;
+        text-align: right;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .review-table th {
+        background-color: var(--background-color);
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    .review-table .color-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .review-table .color-swatch {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+    .review-table .action-cell button {
+        margin-left: 5px;
+    }
+
+    /* --- Skeleton Loaders --- */
+    .skeleton-card {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 10px;
+        height: 220px;
+    }
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* --- Summary Item in Sidebar --- */
+    .summary-item {
+        background-color: #444;
+        border: 1px solid #555;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        animation: slideIn 0.3s ease-out;
+        margin-bottom: 10px;
+    }
+    .summary-item-info { display: flex; align-items: center; gap: 8px; flex-grow: 1; }
+    .summary-item .item-color-swatch { width: 16px; height: 16px; border-radius: 50%; border: 1px solid #fff; }
+    .summary-item-controls { display: flex; align-items: center; gap: 8px; }
+    .summary-item .quantity-btn { width: 22px; height: 22px; border-radius: 4px; background: var(--accent-color); color: var(--primary-color); border: none; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
+    .summary-item .quantity-btn:hover { background: var(--secondary-color); color: var(--light-text); }
+    .summary-item .remove-item-btn { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1rem; padding: 0 5px; }
+    
+    /* --- Empty State --- */
+    .empty-state {
+        text-align: center;
+        padding: 30px;
+        color: #ccc;
+    }
+    .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.7; }
+    .empty-state p { margin-bottom: 15px; }
+    .empty-state button { padding: 8px 16px; background: var(--secondary-color); color: white; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.2s; }
+    .empty-state button:hover { background: var(--primary-color); }
+
+    /* --- Buttons --- */
+    .btn-primary, .btn-nav {
+      padding: 12px 25px;
+      background-color: var(--accent-color);
+      color: var(--primary-color);
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+    }
+    .btn-primary:hover, .btn-nav:hover {
+      background-color: var(--secondary-color);
+      color: var(--light-text);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    .btn-secondary { padding: 10px 20px; background: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); border-radius: 50px; cursor: pointer; transition: all var(--transition-speed); }
+    .btn-secondary:hover { background: var(--primary-color); color: var(--light-text); }
+    .btn-small { padding: 5px 10px; font-size: 0.8rem; border-radius: 5px; }
+    .btn-danger { background-color: var(--danger-color); color: white; }
+    .btn-danger:hover { background-color: #c82333; }
+
+    /* --- Stages --- */
+    .stage { 
+      display: none; 
+      animation: fadeIn 0.5s ease-in-out;
+      width: 100%;
+      text-align: center;
+    }
+    .stage.active { 
+      display: block;
+      text-align: center;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .product-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+      gap: 20px; 
+      margin-bottom: 30px;
+      justify-content: center;
+    }
+    .product-card { 
+      background: var(--card-bg); 
+      border-radius: 10px; 
+      overflow: hidden; 
+      box-shadow: var(--shadow); 
+      transition: all var(--transition-speed); 
+      cursor: pointer; 
+      border: 2px solid transparent;
+      text-align: center;
+    }
+    .product-card:hover, .product-card:focus { 
+      transform: translateY(-5px); 
+      box-shadow: var(--shadow-hover); 
+    }
+    .product-card.selected { 
+      border-color: var(--accent-color); 
+    }
+    .product-image { 
+      height: 150px; 
+      background-color: #eee; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 3rem; 
+      color: var(--primary-color); 
+    }
+    .product-info { 
+      padding: 15px; 
+      text-align: center; 
+    }
+    .product-name { 
+      font-weight: 500; 
+      margin-bottom: 5px; 
+    }
+    .product-model { 
+      color: #666; 
+      font-size: 0.9rem; 
+    }
+    .stage-navigation { 
+      display: flex; 
+      justify-content: center; 
+      gap: 15px; 
+      margin-top: 30px; 
+    }
+    .helper-text { 
+      text-align: center; 
+      color: #888; 
+      font-size: 0.9rem; 
+      margin-top: -20px; 
+      margin-bottom: 20px; 
+    }
+
+    /* --- Modals --- */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        animation: fadeIn 0.2s;
+    }
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: var(--card-bg);
+        padding: 25px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: var(--shadow-hover);
+        animation: slideDown 0.4s ease-out;
+    }
+    .modal-content h3 { margin-bottom: 15px; color: var(--primary-color); }
+    .modal-content .buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+
+    /* --- Color Options --- */
+    #color-options {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+    .color-swatch-option {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: all 0.2s ease-in-out;
+    }
+    .color-swatch-option:hover {
+        transform: scale(1.1);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    /* --- Tooltips --- */
+    .tooltip-wrapper {
+        position: relative;
+    }
+    .tooltip-wrapper::before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 125%;
+        right: 50%;
+        transform: translateX(50%);
+        background-color: var(--primary-color);
+        color: var(--light-text);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--transition-speed);
+    }
+    .tooltip-wrapper:hover::before {
+        opacity: 1;
+    }
+
+    /* --- Animations --- */
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideDown { from { opacity: 0; transform: translate(-50%, -60%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+    @keyframes numberPop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+    
+    /* --- Responsive Design --- */
+
+    /* --- Tablet (e.g., iPad) --- */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        :root { --sidebar-width: 300px; }
+        .product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+        .header-content h1 { font-size: 1.5rem; }
+    }
+
+    /* --- Mobile --- */
+    @media (max-width: 768px) {
+        :root { --header-height: auto; }
+        header { padding: 15px; height: auto; }
+        .header-content h1 { font-size: 1.4rem; margin-bottom: 10px; }
+        .product-nav li { font-size: 0.9rem; padding: 6px 12px; }
+        
+        main { 
+            padding-top: 120px; /* Use padding-top to prevent content from going under header */
+            padding-left: 15px; 
+            padding-right: 15px;
+            margin: 0; /* Reset margin */
+        }
+        body.sidebar-open main {
+            margin-right: 0; /* Disable push effect on mobile */
+        }
+        .sidebar-cart { 
+            width: 100%; 
+            transform: translateX(100%);
+        }
+        body.sidebar-open .sidebar-cart {
+            transform: translateX(0);
+        }
+        .sidebar-toggle { display: none; } /* Hide floating toggle on mobile */
+        .stage-navigation { flex-direction: column; align-items: center; gap: 10px; }
+        .review-table { font-size: 0.9rem; }
+        .review-table th, .review-table td { padding: 8px; }
+        .modal-content { width: 90%; padding: 20px; }
+
+        /* Mobile Cart Button in Header */
+        #mobile-cart-button {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--light-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            display: none; /* Hidden by default */
+        }
+        #mobile-cart-button .cart-badge {
+            border-color: var(--secondary-color);
+        }
+        /* Show mobile button only on mobile screens */
+        #mobile-cart-button {
+            display: block;
+        }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <!-- Mobile Cart Button (visible only on mobile) -->
+      <button id="mobile-cart-button" onclick="toggleSidebar()" aria-label="باز کردن سبد خرید">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-badge" id="mobile-cart-badge">0</span>
+      </button>
+      
+      <h1><i class="fas fa-gem"></i> ست سنگ مصنوعی</h1>
+      <ul class="product-nav" id="product-nav"></ul>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main-content">
+    <div class="stage welcome-stage active" id="stage-welcome">
+      <img src="https://picsum.photos/seed/stonewelcome/600/400.jpg" alt="ست سنگ مصنوعی" class="welcome-image">
+      <h1>به دنیای سنگ مصنوعی خوش آمدید!</h1>
+      <p>ست محصولات سنگ مصنوعی خود را بسازید. از سینی تا مجسمه، همه چیز را انتخاب کنید و فضایی منحصر به فرد برای خود ایجاد کنید.</p>
+      <button class="btn-primary" id="start-button">شروع ساخت ست</button>
+    </div>
+    <!-- Product Stages will be generated by JS -->
+    <div class="stage" id="stage-review">
+        <h1>بازبینی نهایی سفارش</h1>
+        <p>لطفاً سفارش خود را بررسی کرده و در صورت نیاز آن را ویرایش کنید.</p>
+        <table class="review-table">
+            <thead>
+                <tr>
+                    <th>محصول</th>
+                    <th>مدل</th>
+                    <th>رنگ</th>
+                    <th>تعداد</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody id="review-tbody">
+                <!-- Items will be generated by JS -->
+            </tbody>
+        </table>
+        <div class="stage-navigation">
+            <button class="btn-secondary" onclick="goToPreviousStage()">بازگشت به انتخاب</button>
+            <button class="btn-primary" onclick="submitOrder()">ارسال نهایی سفارش</button>
+        </div>
+    </div>
+  </main>
+
+  <!-- Sidebar Cart -->
+  <aside class="sidebar-cart" id="sidebar-cart">
+    <div class="sidebar-header">
+      <h2>
+        <i class="fas fa-shopping-cart"></i> 
+        سبد خرید شما
+        <button class="btn-small" style="float: left; background: none; border: none; color: white;" onclick="toggleSidebar()">
+          <i class="fas fa-times"></i>
+        </button>
+      </h2>
+    </div>
+    <div class="sidebar-content">
+        <div class="selected-items-summary" id="selected-items-summary"></div>
+    </div>
+    <div class="sidebar-footer" style="text-align: center; padding: 20px;">
+        <div class="total-summary">مجموع آیتم‌ها: <span id="total-items-count">0</span></div>
+        <button class="btn-primary" id="final-submit-btn" onclick="goToReviewStage()" disabled>بازبینی و تأیید نهایی</button>
+    </div>
+  </aside>
+
+  <!-- Sidebar Toggle Button with Badge (hidden on mobile) -->
+  <div class="sidebar-toggle" onclick="toggleSidebar()" id="sidebar-toggle-btn" aria-label="باز کردن سبد خرید">
+      <i class="fas fa-chevron-left" id="toggle-icon"></i>
+      <span class="cart-badge" id="cart-badge">0</span>
+  </div>
+
+  <!-- Color Modal -->
+  <div id="color-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 id="modal-product-name">انتخاب رنگ</h3>
+      <div class="color-options" id="color-options"></div>
+      <button class="btn-secondary" onclick="closeColorModal()">انصراف</button>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>تایید حذف</h3>
+      <p>آیا از حذف این محصول از سبد خرید مطمئن هستید؟</p>
+      <div class="buttons">
+        <button class="btn-danger btn-small" id="confirm-delete-btn">بله، حذف شود</button>
+        <button class="btn-secondary btn-small" onclick="closeDeleteModal()">انصراف</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+    /**
+     * This application is designed to be a responsive web app, fully compatible with Telegram Mini Apps.
+     * It automatically adjusts its layout for Desktop, Tablet, and Mobile devices.
+     * When run inside Telegram, it uses the Telegram WebApp API for enhanced features like native alerts and data sending.
+     * If run in a standard browser, it gracefully falls back to standard web functionalities.
+     */
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    // --- CONFIGURATION ---
+    const config = {
+        products: {
+            tray: { name: 'سینی', models: 5, icon: 'fa-circle' },
+            ashtray: { name: 'زیرسیگاری', models: 5, icon: 'fa-smoking' },
+            incense: { name: 'جا عودی', models: 5, icon: 'fa-fire' },
+            candle: { name: 'جا شمعی', models: 5, icon: 'fa-fire-alt' },
+            statue: { name: 'مجسمه', models: 5, icon: 'fa-monument' },
+            mirror: { name: 'آینه', models: 5, icon: 'fa-square' },
+            clock: { name: 'ساعت', models: 5, icon: 'fa-clock' }
+        },
+        colors: [
+            { name: 'بژ', hex: '#D2B48C' }, { name: 'قهوه‌ای روشن', hex: '#8B7355' },
+            { name: 'قهوه‌ی تیره', hex: '#5D4E37' }, { name: 'کرم', hex: '#F5DEB3' }, { name: 'سیاه', hex: '#2C2C2C' }
+        ]
+    };
+
+    // --- STATE MANAGEMENT ---
+    const productKeys = Object.keys(config.products);
+    const stages = ['stage-welcome', ...productKeys.map(key => `stage-${key}`), 'stage-review'];
+    let currentStage = 0;
+    let previousStage = 0;
+    let selectedItems = {};
+    let pendingProduct = { category: null, model: null };
+    let itemToDelete = null;
+
+    // --- DOM ELEMENT CACHING ---
+    const elements = {
+        mainContent: document.getElementById('main-content'),
+        productNav: document.getElementById('product-nav'),
+        sidebarToggleBtn: document.getElementById('sidebar-toggle-btn'),
+        toggleIcon: document.getElementById('toggle-icon'),
+        cartBadge: document.getElementById('cart-badge'),
+        mobileCartBadge: document.getElementById('mobile-cart-badge'), // Cache mobile badge
+        selectedItemsSummary: document.getElementById('selected-items-summary'),
+        totalItemsCount: document.getElementById('total-items-count'),
+        finalSubmitBtn: document.getElementById('final-submit-btn'),
+        reviewTbody: document.getElementById('review-tbody'),
+        colorModal: document.getElementById('color-modal'),
+        deleteModal: document.getElementById('delete-modal')
+    };
+
+    // --- HELPER FUNCTIONS ---
+    function createElementWithClass(tag, className, innerHTML = '') {
+        const el = document.createElement(tag);
+        el.className = className;
+        el.innerHTML = innerHTML;
+        return el;
+    }
+
+    // --- INITIALIZATION ---
+    function initializeApp() {
+        createProductStages();
+        createNavigationTabs();
+        renderActiveStage();
+        updateCartUI();
+        setupEventListeners();
+        setupKeyboardNavigation();
+    }
+
+    function createProductStages() {
+        const reviewStage = document.getElementById('stage-review');
+        productKeys.forEach(key => {
+            const stageDiv = createElementWithClass('div', 'stage product-stage');
+            stageDiv.id = `stage-${key}`;
+            stageDiv.innerHTML = `
+                <h1>${config.products[key].name} خود را انتخاب کنید</h1>
+                <p>روی مدل مورد نظر کلیک کرده و رنگ آن را انتخاب کنید</p>
+                <div class="product-grid" id="${key}-options"></div>
+                <p class="helper-text">برای انتخاب چندین محصول از یک نوع، کافیست دوباره روی مدل مورد نظر کلیک کنید.</p>
+                <div class="stage-navigation">
+                    <button class="btn-nav" onclick="goToNextProduct()">محصول بعدی</button>
+                    <button class="btn-nav" onclick="goToReviewStage()">رفتن به بازبینی نهایی</button>
+                </div>
+            `;
+            elements.mainContent.insertBefore(stageDiv, reviewStage);
+        });
+    }
+
+    function createNavigationTabs() {
+        productKeys.forEach(key => {
+            const li = createElementWithClass('li', '');
+            li.textContent = config.products[key].name;
+            li.onclick = () => goToStage(key);
+            li.id = `nav-${key}`;
+            li.tabIndex = 0;
+            elements.productNav.appendChild(li);
+        });
+    }
+
+    // --- UI RENDERING ---
+    function renderActiveStage() {
+        stages.forEach((id, index) => {
+            document.getElementById(id).classList.toggle('active', index === currentStage);
+        });
+
+        const productKey = stages[currentStage].split('-')[1];
+        if (productKeys.includes(productKey)) {
+            showSkeletons(productKey);
+            setTimeout(() => renderProductGrid(productKey), 300);
+            updateActiveNavTab(productKey);
+        }
+    }
+
+    function showSkeletons(productKey) {
+        const grid = document.getElementById(`${productKey}-options`);
+        grid.innerHTML = '';
+        for(let i=0; i<5; i++) grid.innerHTML += '<div class="skeleton-card"></div>';
+    }
+
+    function renderProductGrid(productKey) {
+        const optionsDiv = document.getElementById(`${productKey}-options`);
+        optionsDiv.innerHTML = '';
+        
+        for (let i = 1; i <= config.products[productKey].models; i++) {
+            const card = createElementWithClass('div', 'product-card');
+            card.tabIndex = 0;
+            
+            const isSelected = Object.keys(selectedItems).some(key => key.startsWith(`${productKey}-${i}`));
+            if (isSelected) card.classList.add('selected');
+
+            card.innerHTML = `
+                <div class="product-image"><i class="fas ${config.products[productKey].icon}"></i></div>
+                <div class="product-info">
+                    <div class="product-name">${config.products[productKey].name}</div>
+                    <div class="product-model">مدل ${i}</div>
+                </div>
+            `;
+            
+            card.onclick = () => openColorModal(productKey, i);
+            optionsDiv.appendChild(card);
+        }
+    }
+
+    function updateActiveNavTab(activeKey) {
+        document.querySelectorAll('.product-nav li').forEach(li => li.classList.remove('active'));
+        const activeTab = document.getElementById(`nav-${activeKey}`);
+        if (activeTab) activeTab.classList.add('active');
+    }
+
+    function updateCartUI() {
+        updateCartBadge();
+        updateSidebarSummary();
+        updateTotalCount();
+        updateSubmitButton();
+    }
+
+    function updateCartBadge() {
+        const totalCount = Object.values(selectedItems).reduce((sum, item) => sum + item.count, 0);
+        
+        // Update desktop badge
+        elements.cartBadge.textContent = totalCount;
+        if (totalCount > 0) {
+            elements.cartBadge.classList.add('visible', 'pop');
+        } else {
+            elements.cartBadge.classList.remove('visible');
+        }
+        setTimeout(() => elements.cartBadge.classList.remove('pop'), 300);
+
+        // Update mobile badge
+        elements.mobileCartBadge.textContent = totalCount;
+        if (totalCount > 0) {
+            elements.mobileCartBadge.classList.add('visible', 'pop');
+        } else {
+            elements.mobileCartBadge.classList.remove('visible');
+        }
+        setTimeout(() => elements.mobileCartBadge.classList.remove('pop'), 300);
+        
+        elements.sidebarToggleBtn.setAttribute('aria-label', `باز کردن سبد خرید با ${totalCount} محصول`);
+    }
+
+    function updateSidebarSummary() {
+        const itemKeys = Object.keys(selectedItems);
+        if (itemKeys.length === 0) {
+            elements.selectedItemsSummary.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-shopping-basket"></i>
+                    <p>سبد خرید شما خالی است!</p>
+                    <button onclick="goToStage('tray')">شروع به خرید</button>
+                </div>
+            `;
+            return;
+        }
+
+        elements.selectedItemsSummary.innerHTML = '';
+        itemKeys.forEach(key => {
+            const item = selectedItems[key];
+            const itemDiv = createElementWithClass('div', 'summary-item');
+            itemDiv.innerHTML = `
+                <div class="summary-item-info">
+                    <span class="item-color-swatch" style="background-color: ${item.color};" title="${item.colorName}"></span>
+                    <div>
+                        <div>${item.category} مدل ${item.model}</div>
+                        <small style="color: #ccc;">${item.colorName}</small>
+                    </div>
+                </div>
+                <div class="summary-item-controls">
+                    <button class="quantity-btn" onclick="changeCount('${key}', -1)">-</button>
+                    <span class="quantity-value">${item.count}</span>
+                    <button class="quantity-btn" onclick="changeCount('${key}', 1)">+</button>
+                    <div class="tooltip-wrapper" data-tooltip="حذف محصول">
+                        <button class="remove-item-btn" onclick="requestDeleteItem('${key}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `;
+            elements.selectedItemsSummary.appendChild(itemDiv);
+        });
+    }
+
+    function updateTotalCount() {
+        const totalCount = Object.values(selectedItems).reduce((sum, item) => sum + item.count, 0);
+        elements.totalItemsCount.textContent = totalCount;
+    }
+
+    function updateSubmitButton() {
+        elements.finalSubmitBtn.disabled = (Object.keys(selectedItems).length === 0);
+    }
+    
+    function populateReviewTable() {
+        elements.reviewTbody.innerHTML = '';
+        Object.keys(selectedItems).forEach(key => {
+            const item = selectedItems[key];
+            const row = elements.reviewTbody.insertRow();
+            row.innerHTML = `
+                <td>${item.category}</td>
+                <td>${item.model}</td>
+                <td class="color-cell"><span class="color-swatch" style="background-color: ${item.color}"></span> ${item.colorName}</td>
+                <td>${item.count}</td>
+                <td class="action-cell">
+                    <button class="btn-secondary btn-small" onclick="editItem('${key}')">ویرایش</button>
+                    <button class="btn-danger btn-small" onclick="requestDeleteItem('${key}')">حذف</button>
+                </td>
+            `;
+        });
+    }
+
+    // --- NAVIGATION & STAGE CONTROL ---
+    function goToStage(productKey) {
+        const stageIndex = stages.indexOf(`stage-${productKey}`);
+        if (stageIndex === -1) return;
+        previousStage = currentStage;
+        currentStage = stageIndex;
+        renderActiveStage();
+    }
+    function goToNextProduct() {
+        const currentProductKey = stages[currentStage].split('-')[1];
+        const currentIndex = productKeys.indexOf(currentProductKey);
+        const nextIndex = (currentIndex + 1) % productKeys.length;
+        goToStage(productKeys[nextIndex]);
+    }
+    function goToReviewStage() {
+        if (Object.keys(selectedItems).length === 0) return;
+        previousStage = currentStage;
+        currentStage = stages.length - 1;
+        populateReviewTable();
+        renderActiveStage();
+    }
+    function goToPreviousStage() {
+        currentStage = previousStage;
+        renderActiveStage();
+    }
+    function editItem(key) {
+        const [category, model] = key.split('-');
+        goToStage(category);
+    }
+
+    // --- MODAL FUNCTIONS ---
+    function openColorModal(category, model) {
+        pendingProduct = { category, model };
+        const modalTitle = document.getElementById('modal-product-name');
+        const colorOptionsDiv = document.getElementById('color-options');
+
+        modalTitle.textContent = `انتخاب رنگ برای ${config.products[category].name} مدل ${model}`;
+        colorOptionsDiv.innerHTML = '';
+        config.colors.forEach(color => {
+            const swatch = createElementWithClass('div', 'color-swatch-option');
+            swatch.style.backgroundColor = color.hex;
+            swatch.title = color.name;
+            swatch.onclick = () => selectColor(color);
+            colorOptionsDiv.appendChild(swatch);
+        });
+        elements.colorModal.style.display = 'block';
+    }
+    function closeColorModal() { elements.colorModal.style.display = 'none'; }
+    function selectColor(color) {
+        const { category, model } = pendingProduct;
+        const key = `${category}-${model}-${color.hex}`;
+        if (selectedItems[key]) { 
+            selectedItems[key].count += 1; 
+        } else {
+            selectedItems[key] = { 
+                category: config.products[category].name, 
+                model: model, 
+                color: color.hex, 
+                colorName: color.name, 
+                count: 1, 
+                icon: config.products[category].icon 
+            };
+        }
+        closeColorModal();
+        updateCartUI();
+        renderActiveStage();
+    }
+    function requestDeleteItem(key) { itemToDelete = key; elements.deleteModal.style.display = 'block'; }
+    function closeDeleteModal() { elements.deleteModal.style.display = 'none'; itemToDelete = null; }
+    function confirmDelete() {
+        if (itemToDelete) { 
+            delete selectedItems[itemToDelete]; 
+            updateCartUI();
+            renderActiveStage();
+        }
+        closeDeleteModal();
+    }
+
+    // --- ITEM MANAGEMENT ---
+    function changeCount(key, delta) {
+        if (selectedItems[key]) { 
+            selectedItems[key].count = Math.max(1, selectedItems[key].count + delta); 
+            updateCartUI();
+        }
+    }
+    
+    // --- SIDEBAR TOGGLE ---
+    function toggleSidebar() {
+        const body = document.body;
+        body.classList.toggle('sidebar-open');
+        if (body.classList.contains('sidebar-open')) {
+            elements.toggleIcon.className = 'fas fa-chevron-right';
+        } else {
+            elements.toggleIcon.className = 'fas fa-chevron-left';
+        }
+    }
+
+    // --- SUBMISSION ---
+    function submitOrder() {
+        if (Object.keys(selectedItems).length === 0) {
+            if (tg.showAlert) {
+                tg.showAlert("سبد شما خالی است.");
+            } else {
+                alert("سبد شما خالی است.");
+            }
+            return;
+        }
+        tg.sendData(JSON.stringify(selectedItems));
+        tg.close();
+    }
+
+    // --- EVENT LISTENERS SETUP ---
+    function setupEventListeners() {
+        document.getElementById('start-button').onclick = () => goToStage('tray');
+        document.getElementById('confirm-delete-btn').onclick = confirmDelete;
+        window.onclick = (e) => { 
+            if (e.target.classList.contains('modal-overlay')) { 
+                e.target.style.display = 'none'; 
+            } 
+        };
+    }
+
+    // --- KEYBOARD NAVIGATION ---
+    function setupKeyboardNavigation() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { 
+                closeColorModal(); 
+                closeDeleteModal();
+                if (document.body.classList.contains('sidebar-open')) {
+                    toggleSidebar();
+                }
+            }
+        });
+    }
+
+    // --- INITIAL LOAD ---
+    initializeApp();
+</script>
+
+</body>
+</html>
