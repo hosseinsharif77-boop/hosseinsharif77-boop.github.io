@@ -19,7 +19,7 @@ export default {
                         { name: 'سیاه', hex: '#2C2C2C' }
                     ],
                     imagesByColor: {
-                        '#D2B48C': 'assets/images/welcome.PNG',
+                        '#D2B48C': 'assets/images/welcome.png',
                         '#8B7355': 'https://picsum.photos/seed/tray1_lightbrown/300/300',
                         '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
                         '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
