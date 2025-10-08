@@ -24,7 +24,6 @@ export default {
                         '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
                         '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
                         '#2C2C2C': 'https://picsum.photos/seed/tray1_black/300/300'
-                        imagesByColor: { '#D2B48C': 'assets/images/tray1_beige.jpg' }
                     } 
                 },
                 { 
