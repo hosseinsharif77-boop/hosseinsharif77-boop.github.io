@@ -69,6 +69,9 @@ export function goToPreviousProduct() {
 
 export function goToReviewStage() {
     // This check is now in the button's disabled state
+    if (document.body.classList.contains('sidebar-open')) {
+        window.ui.toggleSidebar();
+    }
     previousStage = currentStage;
     currentStage = stages.length - 1;
     populateReviewTable();
