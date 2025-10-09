@@ -1,4 +1,3 @@
-// js/ui-components.js
 import { createElementWithClass } from './utils.js';
 import { selectedItems, updateCartUI } from './cart-manager.js';
 
@@ -46,7 +45,7 @@ export function updateSidebarSummary() {
             <div class="empty-state">
                 <i class="fas fa-shopping-basket"></i>
                 <p>سبد خرید شما خالی است!</p>
-                <button onclick="product.goToStage('tray')">شروع به خرید</button>
+                <button onclick="ui.toggleSidebar(); product.goToStage('tray')">شروع به خرید</button>
             </div>
         `;
         return;
@@ -114,11 +113,17 @@ export function updateNavItems(activeKey, productKeys, config) {
         li.tabIndex = 0;
         li.setAttribute('aria-selected', key === activeKey ? 'true' : 'false');
         li.textContent = config.products[key].name;
-        li.onclick = () => window.product.goToStage(key);
+        li.onclick = () => {
+            window.product.goToStage(key);
+            // --- بهبود: اسکرول خودکار به تب فعال ---
+            li.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        };
         li.onkeydown = (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 window.product.goToStage(key);
+                // --- بهبود: اسکرول خودکار به تب فعال ---
+                li.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
         };
         elements.navItemsWrapper.appendChild(li);
@@ -264,6 +269,11 @@ export function changeColorQuantity(index, delta) {
 }
 
 export function confirmSelection(config) {
+    // اگر config ارسال نشده بود، از متغیر سراسری استفاده کن
+    if (!config) {
+        config = window.appConfig;
+    }
+    
     const { category, id } = pendingProduct;
     const product = config.products[category].items.find(item => item.id === id);
 
@@ -355,7 +365,6 @@ export function toggleSidebar() {
         elements.sidebarCart.style.transform = '';
     }
 }
-
 
 export function setupCarouselSwipe() {
     let touchStartX = 0;
