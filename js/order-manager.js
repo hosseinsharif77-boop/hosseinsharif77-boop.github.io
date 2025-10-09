@@ -13,7 +13,7 @@ export function submitOrder() {
         }
         return;
     }
-    try {
+    try { 
         tg.sendData(JSON.stringify(selectedItems));
         tg.close();
     } catch (error) {
