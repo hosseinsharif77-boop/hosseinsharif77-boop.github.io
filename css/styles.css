@@ -52,12 +52,29 @@ button:focus-visible, a:focus-visible, .product-card:focus-visible, .floating-ca
     left: 0;
     right: 0;
     z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     height: var(--header-height);
+
 }
 
+/* === این بخش کلیدی و جدید است === */
+.header-content {
+    display: flex;
+    justify-content: center;      /* عنوان را در مرکز افقی قرار می‌دهد */
+    align-items: center;          /* عنوان را در مرکز عمودی قرار می‌دهد */
+    height: 100%;
+}
+
+/* استایل لوگو که در سمت چپ ثابت می‌شود */
+.logo {
+    position: absolute;           /* لوگو از حالت عادی خارج شده و ثابت می‌شود */
+    left: 0;                   /* فاصله از سمت چپ */
+    top: 23px;                     /* از بالا 50% فاصله بگیر */
+    transform: translateY(-50%);   
+    height: 85px;                 /* ارتفاع لوگو */
+    width: auto;
+}
+
+/* استایل عنوان که دیگر نیازی به flex-grow ندارد */
 .fixed-header .header-content h1 {
     font-size: 1.4rem;
     font-weight: 700;
@@ -67,11 +84,15 @@ button:focus-visible, a:focus-visible, .product-card:focus-visible, .floating-ca
     gap: 10px;
 }
 
-@media (max-width: 576px) {
+/* رسپانسیو کردن برای موبایل */
+@media (max-width: 768px) {
     .fixed-header { padding: 10px; }
     .fixed-header .header-content h1 { font-size: 1.2rem; }
+    .logo { 
+        height: 85px; 
+        left: 2px; /* کمی نزدیک‌تر به لبه در موبایل */
+    }
 }
-
 /* --- Main Content --- */
 main {
     max-width: 1000px;
@@ -98,10 +119,10 @@ body.sidebar-open main { margin-right: var(--sidebar-width); }
 .stage-toolbar {
     position: sticky;
     top: var(--header-height);
-    background-color: #6F4E37;
+    background-color: rgb(237 237 237);
     padding: 10px;
     border-radius: 15px;
-    box-shadow: var(--shadow);
+    box-shadow: 1px 13px 16px 6px rgba(0, 0, 0, 0.08);
     z-index: 900;
     margin-bottom: 20px;
     animation: slideIn 0.5s ease-out;
@@ -112,8 +133,42 @@ body.sidebar-open main { margin-right: var(--sidebar-width); }
     display: none;
 }
 
-.stage-toolbar .product-nav { display: flex; justify-content: flex-start; gap: 10px; background: none; border-radius: 0; padding: 0; overflow-x: auto; scrollbar-width: thin; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-.stage-toolbar .nav-items-wrapper { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 10px; padding: 0 10px; }
+/* === شروع بخش اصلاح شده === */
+.stage-toolbar .product-nav {
+    display: flex;
+    justify-content: flex-start;
+    background: none;
+    border-radius: 0;
+    padding: 0;
+}
+
+.stage-toolbar .nav-items-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 10px;
+    padding: 0 10px;
+    
+    /* --- قابلیت اسکرول افقی --- */
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth; /* برای اسکرول نرم */
+
+    /* --- مخفی کردن اسکرولبار --- */
+    /* برای فایرفاکس */
+    scrollbar-width: none;
+}
+
+/* برای مرورگرهای وب‌کیت (کروم، سافاری، اج جدید) */
+.stage-toolbar .nav-items-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+/* --- بهبود تجربه کاربری با Scroll Snapping --- */
+.stage-toolbar .nav-items-wrapper {
+    scroll-snap-type: x mandatory;
+}
+
 .stage-toolbar .product-nav li {
     list-style: none;
     background-color: rgba(255, 255, 255, 0.2);
@@ -123,12 +178,17 @@ body.sidebar-open main { margin-right: var(--sidebar-width); }
     cursor: pointer;
     transition: all var(--transition-speed);
     font-size: 1rem;
-    flex-shrink: 0;
+    flex-shrink: 0; /* جلوگیری از کوچک شدن تب‌ها */
     white-space: nowrap;
     min-width: fit-content;
     position: relative;
     overflow: hidden;
+
+    /* --- ادامه Scroll Snapping --- */
+    scroll-snap-align: start;
 }
+/* === پایان بخش اصلاح شده === */
+
 
 .stage-toolbar .product-nav li::before {
     content: '';
@@ -557,7 +617,7 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
 @media (max-width: 768px) {
     .fixed-header { padding: 10px; height: auto; }
     .fixed-header .header-content h1 { font-size: 1.2rem; }
-    main { padding: 0 10px; margin: calc(var(--header-height) + var(--toolbar-height) + 10px) auto 20px auto; }
+    main { padding: 0 10px; margin: calc(var(--header-height) + var(--toolbar-height) + 2px) auto 20px auto; }
     body.sidebar-open main { margin-right: 0; }
     .sidebar-cart { width: 100%; transform: translateX(100%); }
     body.sidebar-open .sidebar-cart { transform: translateX(0); }
@@ -588,9 +648,9 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
 .product-colors {
     display: flex;
     justify-content: center;
-    gap: 6px; /* فاصله بین دایره‌های رنگ */
-    margin-top: 10px; /* فاصله از بالا */
-    flex-wrap: wrap; /* اجازه می‌دهد در صورت زیاد بودن رنگ‌ها، به خط بعد بروند */
+    gap: 6px; 
+    margin-top: 10px; 
+    flex-wrap: wrap; 
 }
 
 .color-dot {
@@ -604,4 +664,34 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
 
 .color-dot:hover {
     transform: scale(1.2); /* بزرگ شدن کمی در هنگام هاور */
+}
+
+
+@media (max-width: 480px) {
+    /* استایل‌های مودال برای صفحه‌نمایش‌های بسیار کوچک */
+    .modal-content {
+        width: 95%; 
+        max-width: none;
+        max-height: 95vh; 
+        overflow-y: auto;
+        padding: 15px; 
+    }
+    /* کاهش ارتفاع کاروسل در صفحات کوچک */
+    .modal-product-preview {
+        height: 40vh; 
+        max-height: 40vh; 
+    }
+
+    /* کمی کوچک کردن دکمه‌های رنگ */
+    .color-swatch-option {
+        width: 35px;
+        height: 35px;
+    }
+
+    /* کمی کوچک کردن دکمه‌های تعداد */
+    .color-swatch-option .quantity-btn {
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+    }
 }
