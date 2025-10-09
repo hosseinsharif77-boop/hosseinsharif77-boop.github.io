@@ -7,6 +7,7 @@ let itemToDelete = null;
 let currentCarouselIndex = 0;
 let selectedColors = [];
 let currentModalColors = [];
+let activeColorIndex = null; // برای نگهداری ایندکس رنگ فعال
 
 // --- DOM Elements Cache ---
 const elements = {
@@ -115,14 +116,12 @@ export function updateNavItems(activeKey, productKeys, config) {
         li.textContent = config.products[key].name;
         li.onclick = () => {
             window.product.goToStage(key);
-            // --- بهبود: اسکرول خودکار به تب فعال ---
             li.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         };
         li.onkeydown = (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 window.product.goToStage(key);
-                // --- بهبود: اسکرول خودکار به تب فعال ---
                 li.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
         };
@@ -133,7 +132,6 @@ export function updateNavItems(activeKey, productKeys, config) {
 export function showSkeletons(productKey) {
     const grid = document.getElementById(`${productKey}-options`);
     grid.innerHTML = '';
-    // You can make this more dynamic if needed
     for (let i = 0; i < 4; i++) {
         grid.innerHTML += '<div class="skeleton-card"></div>';
     }
@@ -193,6 +191,7 @@ export function renderProductGrid(productKey, config) {
 export function openColorModal(category, id, config) {
     pendingProduct = { category, id };
     currentCarouselIndex = 0;
+    activeColorIndex = null;
 
     const modalTitle = elements.modalProductName;
     const colorOptionsDiv = document.getElementById('color-options');
@@ -205,7 +204,6 @@ export function openColorModal(category, id, config) {
     // Setup carousel
     elements.carouselInner.innerHTML = '';
     elements.carouselInner.style.transform = `translateX(0%)`;
-
     currentModalColors.forEach((color, index) => {
         const carouselItem = createElementWithClass('div', 'carousel-item');
         const colorImage = product.imagesByColor[color.hex] || 'https://picsum.photos/seed/fallback/300/300';
@@ -218,7 +216,7 @@ export function openColorModal(category, id, config) {
         elements.carouselInner.appendChild(carouselItem);
     });
 
-    // Setup colors with quantity selectors
+    // Setup colors without individual selectors
     colorOptionsDiv.innerHTML = '';
     currentModalColors.forEach((color, index) => {
         const swatchWrapper = createElementWithClass('div', 'color-swatch-wrapper');
@@ -227,49 +225,98 @@ export function openColorModal(category, id, config) {
         swatch.title = color.name;
         swatch.dataset.index = index;
 
-        swatch.onclick = (e) => {
-            e.stopPropagation();
-            currentCarouselIndex = index;
-            elements.carouselInner.style.transform = `translateX(-${currentCarouselIndex * 100}%)`;
-            updateActiveViewIndicator();
-        };
-        swatchWrapper.appendChild(swatch);
+        swatch.onclick = () => selectColor(index);
 
-        const quantitySelector = createElementWithClass('div', 'quantity-selector');
-        quantitySelector.innerHTML = `
-            <button class="quantity-btn" onclick="event.stopPropagation(); ui.changeColorQuantity(${index}, -1)">-</button>
-            <span class="quantity-value">0</span>
-            <button class="quantity-btn" onclick="event.stopPropagation(); ui.changeColorQuantity(${index}, 1)">+</button>
-        `;
-        swatchWrapper.appendChild(quantitySelector);
+        swatchWrapper.appendChild(swatch);
         colorOptionsDiv.appendChild(swatchWrapper);
     });
 
+    // Add universal selector if it doesn't exist
+    const modalContent = elements.colorModal.querySelector('.modal-content');
+    if (!document.getElementById('universal-selector')) {
+        const universalSelector = createElementWithClass('div', 'universal-selector');
+        universalSelector.id = 'universal-selector';
+        universalSelector.innerHTML = `
+            <p>رنگ انتخاب شده: <span id="selected-color-name">-</span></p>
+            <div class="quantity-controls">
+                <button class="quantity-btn-universal" onclick="ui.adjustUniversalQuantity(-1)">-</button>
+                <span id="universal-quantity-value">0</span>
+                <button class="quantity-btn-universal" onclick="ui.adjustUniversalQuantity(1)">+</button>
+            </div>
+        `;
+        modalContent.insertBefore(universalSelector, document.getElementById('color-info'));
+    }
+
     elements.colorModal.style.display = 'block';
-    updateActiveViewIndicator();
+    updateUIForSelectedColor();
 }
 
 export function closeColorModal() {
     elements.colorModal.style.display = 'none';
 }
 
-export function changeColorQuantity(index, delta) {
-    const colorEntry = selectedColors[index];
+// --- تابع اصلاح شده: فقط رنگ را فعال می‌کند ---
+function selectColor(index) {
+    activeColorIndex = index;
+    // فقط رنگ را فعال کن، تعدادش را تغییر نده.
+    // تعداد توسط دکمه های + و - مدیریت میشود.
+    updateUIForSelectedColor();
+}
+
+export function adjustUniversalQuantity(delta) {
+    if (activeColorIndex === null) return;
+
+    const colorEntry = selectedColors[activeColorIndex];
     const newQuantity = Math.max(0, colorEntry.quantity + delta);
-
     colorEntry.quantity = newQuantity;
-    document.querySelectorAll('.quantity-value')[index].textContent = newQuantity;
+    
+    updateUIForSelectedColor();
+}
 
-    const swatch = document.querySelectorAll('.color-swatch-option')[index];
-    if (newQuantity > 0) {
-        swatch.classList.add('selected');
+function updateUIForSelectedColor() {
+    const universalQuantityValue = document.getElementById('universal-quantity-value');
+    const selectedColorName = document.getElementById('selected-color-name');
+    
+    if (activeColorIndex !== null) {
+        const color = currentModalColors[activeColorIndex];
+        const quantity = selectedColors[activeColorIndex].quantity;
+        
+        universalQuantityValue.textContent = quantity;
+        selectedColorName.textContent = color.name;
     } else {
-        swatch.classList.remove('selected');
+        universalQuantityValue.textContent = '0';
+        selectedColorName.textContent = '-';
     }
+
+    // Update swatch badges and active state
+    document.querySelectorAll('.color-swatch-option').forEach((swatch, index) => {
+        const quantity = selectedColors[index].quantity;
+        let badge = swatch.querySelector('.color-badge');
+
+        if (quantity > 0) {
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'color-badge';
+                swatch.appendChild(badge);
+            }
+            badge.textContent = quantity;
+            swatch.classList.add('selected');
+        } else {
+            if (badge) {
+                badge.remove();
+            }
+            swatch.classList.remove('selected');
+        }
+
+        if (index === activeColorIndex) {
+            swatch.classList.add('active-view');
+        } else {
+            swatch.classList.remove('active-view');
+        }
+    });
 }
 
 export function confirmSelection(config) {
-    // اگر config ارسال نشده بود، از متغیر سراسری استفاده کن
     if (!config) {
         config = window.appConfig;
     }
@@ -299,13 +346,14 @@ export function confirmSelection(config) {
     });
     closeColorModal();
     updateCartUI();
-    window.product.renderActiveStage(); // Re-render to update 'selected' class
+    window.product.renderActiveStage();
 }
 
 export function changeCarouselSlide(delta) {
     currentCarouselIndex = (currentCarouselIndex + delta + currentModalColors.length) % currentModalColors.length;
     elements.carouselInner.style.transform = `translateX(-${currentCarouselIndex * 100}%)`;
-    updateActiveViewIndicator();
+    // When carousel changes, also select that color
+    selectColor(currentCarouselIndex);
 }
 
 function updateActiveViewIndicator() {
@@ -369,33 +417,26 @@ export function toggleSidebar() {
 export function setupCarouselSwipe() {
     let touchStartX = 0;
     let touchEndX = 0;
-    const swipeThreshold = 50; // حداقل فاصله برای تشخیص swipe
+    const swipeThreshold = 50;
 
     const handleTouchStart = (e) => {
-        // موقعیت شروع لمس را ذخیره کن
         touchStartX = e.changedTouches[0].screenX;
     };
 
     const handleTouchEnd = (e) => {
-        // موقعیت پایان لمس را ذخیره کن
         touchEndX = e.changedTouches[0].screenX;
-        // و سپس ژستور را بررسی کن
         handleSwipeGesture();
     };
 
     const handleSwipeGesture = () => {
         const swipeDistance = touchEndX - touchStartX;
         if (swipeDistance > swipeThreshold) {
-            // اگر انگشت به راست کشیده شد، به تصویر قبلی برو
             changeCarouselSlide(-1);
         } else if (swipeDistance < -swipeThreshold) {
-            // اگر انگشت به چپ کشیده شد، به تصویر بعدی برو
             changeCarouselSlide(1);
         }
     };
 
-    // شنونده‌های رویداد تاچ را به کانتینر کاروسل اضافه کن
-    // این کار فقط یک بار انجام می‌شود
     elements.carouselContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
     elements.carouselContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
 }
@@ -405,7 +446,7 @@ window.ui = {
     toggleSidebar,
     openColorModal,
     closeColorModal,
-    changeColorQuantity,
+    adjustUniversalQuantity,
     confirmSelection,
     changeCarouselSlide,
     requestDeleteItem,
