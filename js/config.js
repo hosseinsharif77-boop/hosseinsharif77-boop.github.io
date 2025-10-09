@@ -19,7 +19,7 @@ export default {
                         { name: 'سیاه', hex: '#2C2C2C' }
                     ],
                     imagesByColor: {
-                        '#D2B48C': 'assets/images/welcome.png',
+                        '#D2B48C': 'https://picsum.photos/seed/tray1_beige/300/300',
                         '#8B7355': 'https://picsum.photos/seed/tray1_lightbrown/300/300',
                         '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
                         '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
@@ -86,8 +86,269 @@ export default {
                         '#F5DEB3': 'https://picsum.photos/seed/new2_cream/300/300',
                         '#2C2C2C': 'https://picsum.photos/seed/new2_black/300/300'
                     } 
-                },
+                },     
             ]
         },
+        test2: { 
+            name: 'سینی', 
+            items: [
+                { 
+                    id: 1, 
+                    description: 'طرح اطلس', 
+                    height: '10 cm', 
+                    width: '7 cm', 
+                    openingDiameter: '5 cm', 
+                    price: '150,000 تومان',
+                    colors: [
+                        { name: 'بژ', hex: '#D2B48C' },
+                        { name: 'قهوه‌ای روشن', hex: '#8B7355' },
+                        { name: 'قهوه‌ی تیره', hex: '#5D4E37' },
+                        { name: 'کرم', hex: '#F5DEB3' },
+                        { name: 'سیاه', hex: '#2C2C2C' }
+                    ],
+                    imagesByColor: {
+                        '#D2B48C': 'https://picsum.photos/seed/tray1_beige/300/300',
+                        '#8B7355': 'https://picsum.photos/seed/tray1_lightbrown/300/300',
+                        '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
+                        '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
+                        '#2C2C2C': 'https://picsum.photos/seed/tray1_black/300/300'
+                    } 
+                },
+
+            ]
+        },
+        test3: { 
+            name: 'سینی', 
+            items: [
+                { 
+                    id: 1, 
+                    description: 'طرح اطلس', 
+                    height: '10 cm', 
+                    width: '7 cm', 
+                    openingDiameter: '5 cm', 
+                    price: '150,000 تومان',
+                    colors: [
+                        { name: 'بژ', hex: '#D2B48C' },
+                        { name: 'قهوه‌ای روشن', hex: '#8B7355' },
+                        { name: 'قهوه‌ی تیره', hex: '#5D4E37' },
+                        { name: 'کرم', hex: '#F5DEB3' },
+                        { name: 'سیاه', hex: '#2C2C2C' }
+                    ],
+                    imagesByColor: {
+                        '#D2B48C': 'https://picsum.photos/seed/tray1_beige/300/300',
+                        '#8B7355': 'https://picsum.photos/seed/tray1_lightbrown/300/300',
+                        '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
+                        '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
+                        '#2C2C2C': 'https://picsum.photos/seed/tray1_black/300/300'
+                    } 
+                },
+
+            ]
+        },
+
+        test4: { 
+            name: 'سینی', 
+            items: [
+                { 
+                    id: 1, 
+                    description: 'طرح اطلس', 
+                    height: '10 cm', 
+                    width: '7 cm', 
+                    openingDiameter: '5 cm', 
+                    price: '150,000 تومان',
+                    colors: [
+                        { name: 'بژ', hex: '#D2B48C' },
+                        { name: 'قهوه‌ای روشن', hex: '#8B7355' },
+                        { name: 'قهوه‌ی تیره', hex: '#5D4E37' },
+                        { name: 'کرم', hex: '#F5DEB3' },
+                        { name: 'سیاه', hex: '#2C2C2C' }
+                    ],
+                    imagesByColor: {
+                        '#D2B48C': 'https://picsum.photos/seed/tray1_beige/300/300',
+                        '#8B7355': 'https://picsum.photos/seed/tray1_lightbrown/300/300',
+                        '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
+                        '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
+                        '#2C2C2C': 'https://picsum.photos/seed/tray1_black/300/300'
+                    } 
+                },
+
+            ]
+        },
+
+        test5: { 
+            name: 'سینی', 
+            items: [
+                { 
+                    id: 1, 
+                    description: 'طرح اطلس', 
+                    height: '10 cm', 
+                    width: '7 cm', 
+                    openingDiameter: '5 cm', 
+                    price: '150,000 تومان',
+                    colors: [
+                        { name: 'بژ', hex: '#D2B48C' },
+                        { name: 'قهوه‌ای روشن', hex: '#8B7355' },
+                        { name: 'قهوه‌ی تیره', hex: '#5D4E37' },
+                        { name: 'کرم', hex: '#F5DEB3' },
+                        { name: 'سیاه', hex: '#2C2C2C' }
+                    ],
+                    imagesByColor: {
+                        '#D2B48C': 'https://picsum.photos/seed/tray1_beige/300/300',
+                        '#8B7355': 'https://picsum.photos/seed/tray1_lightbrown/300/300',
+                        '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
+                        '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
+                        '#2C2C2C': 'https://picsum.photos/seed/tray1_black/300/300'
+                    } 
+                },
+
+            ]
+        },
+
+        test6: { 
+            name: 'سینی', 
+            items: [
+                { 
+                    id: 1, 
+                    description: 'طرح اطلس', 
+                    height: '10 cm', 
+                    width: '7 cm', 
+                    openingDiameter: '5 cm', 
+                    price: '150,000 تومان',
+                    colors: [
+                        { name: 'بژ', hex: '#D2B48C' },
+                        { name: 'قهوه‌ای روشن', hex: '#8B7355' },
+                        { name: 'قهوه‌ی تیره', hex: '#5D4E37' },
+                        { name: 'کرم', hex: '#F5DEB3' },
+                        { name: 'سیاه', hex: '#2C2C2C' }
+                    ],
+                    imagesByColor: {
+                        '#D2B48C': 'https://picsum.photos/seed/tray1_beige/300/300',
+                        '#8B7355': 'https://picsum.photos/seed/tray1_lightbrown/300/300',
+                        '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
+                        '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
+                        '#2C2C2C': 'https://picsum.photos/seed/tray1_black/300/300'
+                    } 
+                },
+
+            ]
+        },
+
+
+        test7: { 
+            name: 'سینی', 
+            items: [
+                { 
+                    id: 1, 
+                    description: 'طرح اطلس', 
+                    height: '10 cm', 
+                    width: '7 cm', 
+                    openingDiameter: '5 cm', 
+                    price: '150,000 تومان',
+                    colors: [
+                        { name: 'بژ', hex: '#D2B48C' },
+                        { name: 'قهوه‌ای روشن', hex: '#8B7355' },
+                        { name: 'قهوه‌ی تیره', hex: '#5D4E37' },
+                        { name: 'کرم', hex: '#F5DEB3' },
+                        { name: 'سیاه', hex: '#2C2C2C' }
+                    ],
+                    imagesByColor: {
+                        '#D2B48C': 'https://picsum.photos/seed/tray1_beige/300/300',
+                        '#8B7355': 'https://picsum.photos/seed/tray1_lightbrown/300/300',
+                        '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
+                        '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
+                        '#2C2C2C': 'https://picsum.photos/seed/tray1_black/300/300'
+                    } 
+                },
+
+            ]
+        },
+
+        test8: { 
+            name: 'سینی', 
+            items: [
+                { 
+                    id: 1, 
+                    description: 'طرح اطلس', 
+                    height: '10 cm', 
+                    width: '7 cm', 
+                    openingDiameter: '5 cm', 
+                    price: '150,000 تومان',
+                    colors: [
+                        { name: 'بژ', hex: '#D2B48C' },
+                        { name: 'قهوه‌ای روشن', hex: '#8B7355' },
+                        { name: 'قهوه‌ی تیره', hex: '#5D4E37' },
+                        { name: 'کرم', hex: '#F5DEB3' },
+                        { name: 'سیاه', hex: '#2C2C2C' }
+                    ],
+                    imagesByColor: {
+                        '#D2B48C': 'https://picsum.photos/seed/tray1_beige/300/300',
+                        '#8B7355': 'https://picsum.photos/seed/tray1_lightbrown/300/300',
+                        '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
+                        '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
+                        '#2C2C2C': 'https://picsum.photos/seed/tray1_black/300/300'
+                    } 
+                },
+
+            ]
+        },
+
+        test9: { 
+            name: 'سینی', 
+            items: [
+                { 
+                    id: 1, 
+                    description: 'طرح اطلس', 
+                    height: '10 cm', 
+                    width: '7 cm', 
+                    openingDiameter: '5 cm', 
+                    price: '150,000 تومان',
+                    colors: [
+                        { name: 'بژ', hex: '#D2B48C' },
+                        { name: 'قهوه‌ای روشن', hex: '#8B7355' },
+                        { name: 'قهوه‌ی تیره', hex: '#5D4E37' },
+                        { name: 'کرم', hex: '#F5DEB3' },
+                        { name: 'سیاه', hex: '#2C2C2C' }
+                    ],
+                    imagesByColor: {
+                        '#D2B48C': 'https://picsum.photos/seed/tray1_beige/300/300',
+                        '#8B7355': 'https://picsum.photos/seed/tray1_lightbrown/300/300',
+                        '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
+                        '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
+                        '#2C2C2C': 'https://picsum.photos/seed/tray1_black/300/300'
+                    } 
+                },
+
+            ]
+        },
+
+        test10: { 
+            name: 'سینی', 
+            items: [
+                { 
+                    id: 1, 
+                    description: 'طرح اطلس', 
+                    height: '10 cm', 
+                    width: '7 cm', 
+                    openingDiameter: '5 cm', 
+                    price: '150,000 تومان',
+                    colors: [
+                        { name: 'بژ', hex: '#D2B48C' },
+                        { name: 'قهوه‌ای روشن', hex: '#8B7355' },
+                        { name: 'قهوه‌ی تیره', hex: '#5D4E37' },
+                        { name: 'کرم', hex: '#F5DEB3' },
+                        { name: 'سیاه', hex: '#2C2C2C' }
+                    ],
+                    imagesByColor: {
+                        '#D2B48C': 'https://picsum.photos/seed/tray1_beige/300/300',
+                        '#8B7355': 'https://picsum.photos/seed/tray1_lightbrown/300/300',
+                        '#5D4E37': 'https://picsum.photos/seed/tray1_darkbrown/300/300',
+                        '#F5DEB3': 'https://picsum.photos/seed/tray1_cream/300/300',
+                        '#2C2C2C': 'https://picsum.photos/seed/tray1_black/300/300'
+                    } 
+                },
+
+            ]
+        },
+
     },
 };
