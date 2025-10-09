@@ -1,4 +1,3 @@
-// js/app.js
 import { updateHeaderHeight } from './utils.js';
 import { 
     createProductStages, 
@@ -7,8 +6,8 @@ import {
     currentStage     // <-- currentStage را وارد کنید
 } from './product-manager.js';
 import { toggleSidebar, setupCarouselSwipe } from './ui-components.js'; 
-
 import { updateCartUI } from './cart-manager.js';
+import config from './config.js'; // <-- import config
 
 // --- Global Elements ---
 const elements = {
@@ -29,11 +28,18 @@ function initializeApp() {
     setupKeyboardNavigation();
     setupSwipeGestures();
     setupCarouselSwipe(); 
-    setupMainContentSwipe(); // <-- این خط را اضافه کنید
+    setupMainContentSwipe();
 
-
-    
     updateCartUI();
+    
+    // اضافه کردن آبجکت‌ها به scope سراسری
+    window.app = {
+        goToPreviousStage: () => window.product.goToPreviousStage(),
+        goToNextStage: () => window.product.goToNextStage(),
+        config: config
+    };
+    
+    window.appConfig = config;
 }
 
 // --- Event Listeners Setup ---
@@ -179,7 +185,9 @@ function setupSwipeGestures() {
 
 // Expose cart functions to global scope for inline handlers
 window.cart = {
-    changeCount: (key, delta, event) => import('./cart-manager.js').then(module => module.changeCount(key, delta, event))
+    changeCount: (key, delta, event) => import('./cart-manager.js').then(module => module.changeCount(key, delta, event)),
+    // --- این خط را اضافه کنید ---
+    confirmDelete: (key) => import('./cart-manager.js').then(module => module.confirmDelete(key))
 };
 
 // Start the application
