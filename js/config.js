@@ -44,6 +44,187 @@ export default {
                         '#1C1C1C': 'https://picsum.photos/seed/tray2_black/300/300'
                     } 
                 },
+                                { 
+                    id: 3, 
+                    description: 'طرح مدرن', 
+                    height: '12 cm', 
+                    width: '8 cm', 
+                    openingDiameter: '6 cm', 
+                    price: '180,000 تومان',
+                    colors: [
+                        { name: 'سفید', hex: '#FFFFFF' },
+                        { name: 'طوسی', hex: '#C0C0C0' },
+                        { name: 'مشکی', hex: '#1C1C1C' }
+                    ],
+                    imagesByColor: {
+                        '#FFFFFF': 'https://picsum.photos/seed/tray2_white/300/300',
+                        '#C0C0C0': 'https://picsum.photos/seed/tray2_gray/300/300',
+                        '#1C1C1C': 'https://picsum.photos/seed/tray2_black/300/300'
+                    } 
+                },
+                                { 
+                    id: 4, 
+                    description: 'طرح مدرن', 
+                    height: '12 cm', 
+                    width: '8 cm', 
+                    openingDiameter: '6 cm', 
+                    price: '180,000 تومان',
+                    colors: [
+                        { name: 'سفید', hex: '#FFFFFF' },
+                        { name: 'طوسی', hex: '#C0C0C0' },
+                        { name: 'مشکی', hex: '#1C1C1C' }
+                    ],
+                    imagesByColor: {
+                        '#FFFFFF': 'https://picsum.photos/seed/tray2_white/300/300',
+                        '#C0C0C0': 'https://picsum.photos/seed/tray2_gray/300/300',
+                        '#1C1C1C': 'https://picsum.photos/seed/tray2_black/300/300'
+                    } 
+                },
+                                { 
+                    id: 5, 
+                    description: 'طرح مدرن', 
+                    height: '12 cm', 
+                    width: '8 cm', 
+                    openingDiameter: '6 cm', 
+                    price: '180,000 تومان',
+                    colors: [
+                        { name: 'سفید', hex: '#FFFFFF' },
+                        { name: 'طوسی', hex: '#C0C0C0' },
+                        { name: 'مشکی', hex: '#1C1C1C' }
+                    ],
+                    imagesByColor: {
+                        '#FFFFFF': 'https://picsum.photos/seed/tray2_white/300/300',
+                        '#C0C0C0': 'https://picsum.photos/seed/tray2_gray/300/300',
+                        '#1C1C1C': 'https://picsum.photos/seed/tray2_black/300/300'
+                    } 
+                },
+                                { 
+                    id: 6, 
+                    description: 'طرح مدرن', 
+                    height: '12 cm', 
+                    width: '8 cm', 
+                    openingDiameter: '6 cm', 
+                    price: '180,000 تومان',
+                    colors: [
+                        { name: 'سفید', hex: '#FFFFFF' },
+                        { name: 'طوسی', hex: '#C0C0C0' },
+                        { name: 'مشکی', hex: '#1C1C1C' }
+                    ],
+                    imagesByColor: {
+                        '#FFFFFF': 'https://picsum.photos/seed/tray2_white/300/300',
+                        '#C0C0C0': 'https://picsum.photos/seed/tray2_gray/300/300',
+                        '#1C1C1C': 'https://picsum.photos/seed/tray2_black/300/300'
+                    } 
+                },
+                                { 
+                    id: 7, 
+                    description: 'طرح مدرن', 
+                    height: '12 cm', 
+                    width: '8 cm', 
+                    openingDiameter: '6 cm', 
+                    price: '180,000 تومان',
+                    colors: [
+                        { name: 'سفید', hex: '#FFFFFF' },
+                        { name: 'طوسی', hex: '#C0C0C0' },
+                        { name: 'مشکی', hex: '#1C1C1C' }
+                    ],
+                    imagesByColor: {
+                        '#FFFFFF': 'https://picsum.photos/seed/tray2_white/300/300',
+                        '#C0C0C0': 'https://picsum.photos/seed/tray2_gray/300/300',
+                        '#1C1C1C': 'https://picsum.photos/seed/tray2_black/300/300'
+                    } 
+                },
+                                { 
+                    id: 8, 
+                    description: 'طرح مدرن', 
+                    height: '12 cm', 
+                    width: '8 cm', 
+                    openingDiameter: '6 cm', 
+                    price: '180,000 تومان',
+                    colors: [
+                        { name: 'سفید', hex: '#FFFFFF' },
+                        { name: 'طوسی', hex: '#C0C0C0' },
+                        { name: 'مشکی', hex: '#1C1C1C' }
+                    ],
+                    imagesByColor: {
+                        '#FFFFFF': 'https://picsum.photos/seed/tray2_white/300/300',
+                        '#C0C0C0': 'https://picsum.photos/seed/tray2_gray/300/300',
+                        '#1C1C1C': 'https://picsum.photos/seed/tray2_black/300/300'
+                    } 
+                },
+                                { 
+                    id: 9, 
+                    description: 'طرح مدرن', 
+                    height: '12 cm', 
+                    width: '8 cm', 
+                    openingDiameter: '6 cm', 
+                    price: '180,000 تومان',
+                    colors: [
+                        { name: 'سفید', hex: '#FFFFFF' },
+                        { name: 'طوسی', hex: '#C0C0C0' },
+                        { name: 'مشکی', hex: '#1C1C1C' }
+                    ],
+                    imagesByColor: {
+                        '#FFFFFF': 'https://picsum.photos/seed/tray2_white/300/300',
+                        '#C0C0C0': 'https://picsum.photos/seed/tray2_gray/300/300',
+                        '#1C1C1C': 'https://picsum.photos/seed/tray2_black/300/300'
+                    } 
+                },
+                                { 
+                    id: 10, 
+                    description: 'طرح مدرن', 
+                    height: '12 cm', 
+                    width: '8 cm', 
+                    openingDiameter: '6 cm', 
+                    price: '180,000 تومان',
+                    colors: [
+                        { name: 'سفید', hex: '#FFFFFF' },
+                        { name: 'طوسی', hex: '#C0C0C0' },
+                        { name: 'مشکی', hex: '#1C1C1C' }
+                    ],
+                    imagesByColor: {
+                        '#FFFFFF': 'https://picsum.photos/seed/tray2_white/300/300',
+                        '#C0C0C0': 'https://picsum.photos/seed/tray2_gray/300/300',
+                        '#1C1C1C': 'https://picsum.photos/seed/tray2_black/300/300'
+                    } 
+                },
+                                { 
+                    id: 11, 
+                    description: 'طرح مدرن', 
+                    height: '12 cm', 
+                    width: '8 cm', 
+                    openingDiameter: '6 cm', 
+                    price: '180,000 تومان',
+                    colors: [
+                        { name: 'سفید', hex: '#FFFFFF' },
+                        { name: 'طوسی', hex: '#C0C0C0' },
+                        { name: 'مشکی', hex: '#1C1C1C' }
+                    ],
+                    imagesByColor: {
+                        '#FFFFFF': 'https://picsum.photos/seed/tray2_white/300/300',
+                        '#C0C0C0': 'https://picsum.photos/seed/tray2_gray/300/300',
+                        '#1C1C1C': 'https://picsum.photos/seed/tray2_black/300/300'
+                    } 
+                },
+                                { 
+                    id: 12, 
+                    description: 'طرح مدرن', 
+                    height: '12 cm', 
+                    width: '8 cm', 
+                    openingDiameter: '6 cm', 
+                    price: '180,000 تومان',
+                    colors: [
+                        { name: 'سفید', hex: '#FFFFFF' },
+                        { name: 'طوسی', hex: '#C0C0C0' },
+                        { name: 'مشکی', hex: '#1C1C1C' }
+                    ],
+                    imagesByColor: {
+                        '#FFFFFF': 'https://picsum.photos/seed/tray2_white/300/300',
+                        '#C0C0C0': 'https://picsum.photos/seed/tray2_gray/300/300',
+                        '#1C1C1C': 'https://picsum.photos/seed/tray2_black/300/300'
+                    } 
+                },
+
             ]
         },
         newcategory: { 
