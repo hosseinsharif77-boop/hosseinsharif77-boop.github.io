@@ -367,12 +367,20 @@ function updateUIForSelectedColor() {
     });
 }
 
-export function confirmSelection(config) {
-    if (!config) {
-        config = window.appConfig;
+export function confirmSelection() {
+    // دیگر نیازی به آرگومان config نداریم. مستقیماً از config وارد شده در این فایل استفاده می‌کنیم.
+    
+    // --- شروع کد اصلاح شده ---
+    // بررسی امنیتی روی config محلی این فایل
+    if (!config || !config.products) {
+        console.error("Config object is missing or malformed in confirmSelection.", config);
+        alert("خطا در پردازش سفارش. لطفاً دوباره تلاش کنید.");
+        return;
     }
+    // --- پایان کد اصلاح شده ---
     
     const { category, id } = pendingProduct;
+    // استفاده از config محلی
     const product = config.products[category].items.find(item => item.id === id);
 
     selectedColors.forEach(colorEntry => {
@@ -385,6 +393,7 @@ export function confirmSelection(config) {
                     selectedItems[key].count += colorEntry.quantity;
                 } else {
                     selectedItems[key] = {
+                        // استفاده از config محلی در اینجا هم
                         category: config.products[category].name,
                         model: id,
                         description: product.description,
@@ -400,10 +409,7 @@ export function confirmSelection(config) {
     closeColorModal();
     updateCartUI();
     
-    // --- شروع کد جدید ---
-    // فعال کردن پرچم برای جلوگیری از ریست اسکرول پس از افزودن محصول
     window.preventScrollReset = true;
-    // --- پایان کد جدید ---
     
     window.product.renderActiveStage();
 }
