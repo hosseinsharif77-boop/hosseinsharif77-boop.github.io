@@ -1,4 +1,3 @@
-/* کپی کردن کل محتوای تگ <style> از فایل اصلی در اینجا */
 :root {
     --primary-color: #3a3a3a;
     --secondary-color: #8b5a2b;
@@ -53,28 +52,24 @@ button:focus-visible, a:focus-visible, .product-card:focus-visible, .floating-ca
     right: 0;
     z-index: 1000;
     height: var(--header-height);
-
 }
 
-/* === این بخش کلیدی و جدید است === */
 .header-content {
     display: flex;
-    justify-content: center;      /* عنوان را در مرکز افقی قرار می‌دهد */
-    align-items: center;          /* عنوان را در مرکز عمودی قرار می‌دهد */
+    justify-content: center;
+    align-items: center;
     height: 100%;
 }
 
-/* استایل لوگو که در سمت چپ ثابت می‌شود */
 .logo {
-    position: absolute;           /* لوگو از حالت عادی خارج شده و ثابت می‌شود */
-    left: 0;                   /* فاصله از سمت چپ */
-    top: 23px;                     /* از بالا 50% فاصله بگیر */
-    transform: translateY(-50%);   
-    height: 85px;                 /* ارتفاع لوگو */
+    position: absolute;
+    left: 0;
+    top: 23px;
+    transform: translateY(-50%);
+    height: 85px;
     width: auto;
 }
 
-/* استایل عنوان که دیگر نیازی به flex-grow ندارد */
 .fixed-header .header-content h1 {
     font-size: 1.4rem;
     font-weight: 700;
@@ -84,47 +79,94 @@ button:focus-visible, a:focus-visible, .product-card:focus-visible, .floating-ca
     gap: 10px;
 }
 
-/* رسپانسیو کردن برای موبایل */
 @media (max-width: 768px) {
     .fixed-header { padding: 10px; }
     .fixed-header .header-content h1 { font-size: 1.2rem; }
     .logo { 
         height: 85px; 
-        left: 2px; /* کمی نزدیک‌تر به لبه در موبایل */
+        left: 2px;
     }
 }
+
 /* --- Main Content --- */
 main {
     max-width: 1000px;
-    margin: calc(var(--header-height) + var(--toolbar-height) + 20px) auto 40px auto;
-    padding: 0 15px;
+    margin: 0 auto;
+    /* این خط را تغییر دهید: +20px را به +10px کاهش دهید */
+    padding: calc(var(--header-height) + var(--toolbar-height) + 10px) 15px 20px;
     width: 100%;
     transition: margin-right var(--transition-speed) ease-in-out;
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-height: calc(100vh - var(--header-height) - var(--toolbar-height));
+    overflow-x: hidden;
 }
 
-body.sidebar-open main { margin-right: var(--sidebar-width); }
-
+body.sidebar-open main { 
+    margin-right: var(--sidebar-width); 
+    padding-right: calc(var(--sidebar-width) + 15px); /* تنظیم padding-right برای جلوگیری از همپوشانی */
+}
 /* --- Initial Welcome State --- */
-.welcome-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-.welcome-image { width: 100%; height: auto; max-width: 600px; margin-bottom: 20px; border-radius: 10px; }
+.welcome-stage { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    text-align: center; 
+    padding-bottom: 100px;
+}
+.welcome-image { width: 100%; height: auto; max-width: 400px; margin-bottom: 20px; border-radius: 10px; }
+
 .welcome-stage h1 { font-size: 2rem; margin-bottom: 15px; }
 .welcome-stage p { font-size: 1.1rem; max-width: 90%; margin: 0 auto; }
-.welcome-start-btn { padding: 12px 25px; background-color: var(--accent-color); color: var(--primary-color); border: none; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all var(--transition-speed); }
-.welcome-start-btn:hover { background-color: var(--secondary-color); color: var(--light-text); transform: translateY(-2px); box-shadow: var(--shadow); }
+.welcome-start-btn { 
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    width: auto;
+    max-width: 50%;
+    padding: 8px 20px;
+    background-color: rgb(255 255 255 / 15%);
+    border-radius: 50px;
+    box-shadow: var(--shadow);
+    color: var(--primary-color);
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+.welcome-start-btn:hover { 
+    background-color: var(--secondary-color); 
+    color: var(--light-text); 
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: var(--shadow); 
+}
+
+@media (max-width: 768px) {
+    .welcome-start-btn {
+        padding: 8px 15px;
+        width: auto;
+        max-width: 90%;
+    }
+}
 
 /* --- Stage Toolbar --- */
 .stage-toolbar {
-    position: sticky;
-    top: var(--header-height);
+    position: sticky; /* حفظ position: sticky */
+    top: var(--header-height); /* حفظ موقعیت در زیر هدر */
     background-color: rgb(237 237 237);
     padding: 10px;
-    border-radius: 15px;
-    box-shadow: 1px 13px 16px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 1px 13px 16px 6px rgba(88, 88, 88, 0.542);
     z-index: 900;
-    margin-bottom: 20px;
+    margin-bottom: 0; /* حذف margin-bottom */
     animation: slideIn 0.5s ease-out;
     width: 100%;
     max-width: 1000px;
@@ -133,7 +175,6 @@ body.sidebar-open main { margin-right: var(--sidebar-width); }
     display: none;
 }
 
-/* === شروع بخش اصلاح شده === */
 .stage-toolbar .product-nav {
     display: flex;
     justify-content: flex-start;
@@ -148,47 +189,36 @@ body.sidebar-open main { margin-right: var(--sidebar-width); }
     flex-wrap: nowrap;
     gap: 10px;
     padding: 0 10px;
-    
-    /* --- قابلیت اسکرول افقی --- */
     overflow-x: auto;
     overflow-y: hidden;
-    scroll-behavior: smooth; /* برای اسکرول نرم */
-
-    /* --- مخفی کردن اسکرولبار --- */
-    /* برای فایرفاکس */
+    scroll-behavior: smooth;
     scrollbar-width: none;
 }
 
-/* برای مرورگرهای وب‌کیت (کروم، سافاری، اج جدید) */
 .stage-toolbar .nav-items-wrapper::-webkit-scrollbar {
     display: none;
 }
 
-/* --- بهبود تجربه کاربری با Scroll Snapping --- */
 .stage-toolbar .nav-items-wrapper {
     scroll-snap-type: x mandatory;
 }
 
 .stage-toolbar .product-nav li {
     list-style: none;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: #9897932b;
     border: 2px solid transparent;
-    border-radius: 25px;
+    border-radius: 10px;
     padding: 8px 15px;
     cursor: pointer;
     transition: all var(--transition-speed);
     font-size: 1rem;
-    flex-shrink: 0; /* جلوگیری از کوچک شدن تب‌ها */
+    flex-shrink: 0;
     white-space: nowrap;
     min-width: fit-content;
     position: relative;
     overflow: hidden;
-
-    /* --- ادامه Scroll Snapping --- */
     scroll-snap-align: start;
 }
-/* === پایان بخش اصلاح شده === */
-
 
 .stage-toolbar .product-nav li::before {
     content: '';
@@ -292,29 +322,6 @@ body.sidebar-open .sidebar-cart { transform: translateX(0); }
 
 .sidebar-content { flex-grow: 1; padding: 20px; overflow-y: auto; }
 
-.sidebar-toggle {
-    position: fixed;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 24px;
-    height: 60px;
-    background-color: var(--sidebar-bg);
-    border-radius: 10px 0 0 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--light-text);
-    font-size: 1rem;
-    box-shadow: -3px 0 10px rgba(0,0,0,0.2);
-    transition: all var(--transition-speed);
-    z-index: 1002;
-}
-
-.sidebar-toggle:hover { background-color: var(--secondary-color); width: 30px; }
-body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); border-radius: 0 10px 10px 0; }
-
 .sidebar-footer { padding: 20px; text-align: center; border-top: 1px solid #444; }
 .total-summary { margin-bottom: 10px; font-size: 0.9rem; }
 
@@ -331,11 +338,54 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
     box-shadow: var(--shadow);
 }
 
-.review-table th, .review-table td { padding: 12px 15px; text-align: right; border-bottom: 1px solid var(--border-color); }
-.review-table th { background-color: var(--background-color); font-weight: 600; color: var(--primary-color); }
-.review-table .color-cell { display: flex; align-items: center; gap: 10px; }
-.review-table .color-swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #ccc; }
-.review-table .action-cell button { margin-left: 5px; }
+.review-table th, .review-table td {
+    padding: 12px 15px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.review-table th {
+    background-color: var(--background-color);
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.review-table .color-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.review-table .color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.review-table .action-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+}
+
+.review-table .action-cell button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color var(--transition-speed);
+    padding: 5px;
+}
+
+.review-table .action-cell .edit-btn {
+    color: var(--primary-color);
+}
+
+.review-table .action-cell .edit-btn:hover {
+    color: var(--accent-color);
+}
 
 /* --- Skeleton Loaders --- */
 .skeleton-card {
@@ -376,8 +426,25 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
 .empty-state button:hover { background: var(--primary-color); }
 
 /* --- Buttons --- */
-.btn-primary, .btn-nav { padding: 12px 25px; background-color: var(--accent-color); color: var(--primary-color); border: none; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all var(--transition-speed); }
-.btn-primary:hover, .btn-nav:hover { background-color: var(--secondary-color); color: var(--light-text); transform: translateY(-2px); box-shadow: var(--shadow); }
+.btn-primary, .btn-nav { 
+    padding: 12px 25px;
+    margin-bottom: 0;
+    background-color: var(--accent-color); 
+    color: var(--primary-color); 
+    border: none; 
+    border-radius: 50px; 
+    font-size: 1rem; 
+    font-weight: 600; 
+    cursor: pointer; 
+    transition: all var(--transition-speed); 
+}
+.btn-primary:hover, .btn-nav:hover { 
+    background-color: var(--secondary-color); 
+    color: var(--light-text); 
+    transform: translateY(-2px); 
+    box-shadow: var(--shadow); 
+}
+
 .btn-secondary { padding: 10px 20px; background: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); border-radius: 50px; cursor: pointer; transition: all var(--transition-speed); }
 .btn-secondary:hover { background: var(--primary-color); color: var(--light-text); }
 .btn-small { padding: 5px 10px; font-size: 0.8rem; border-radius: 5px; }
@@ -385,12 +452,38 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
 .btn-danger:hover { background-color: #c82333; }
 
 /* --- Stages --- */
-.stage { display: none; animation: fadeIn 0.5s ease-in-out; width: 100%; text-align: center; }
-.stage.active { display: block; text-align: center; }
+.stage {
+    display: none;
+    width: 100%;
+    text-align: center;
+    height: auto;
+    overflow-y: auto;
+    margin-top: 0; /* اطمینان از اینکه هیچ حاشیه بالایی وجود ندارد */
+}
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.stage.active {
+    display: block;
+    text-align: center;
+    animation: fadeIn 0.3s ease-in-out; /* انیمیشن ملایم */
+}
+@keyframes fadeIn { 
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    } 
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    } 
+}
+.product-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+    gap: 20px; 
+    margin-bottom: 10px;
+    justify-content: center; 
+}
 
-.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; justify-content: center; }
 .product-card {
     background: linear-gradient(135deg, #fff, #fafafa);
     border-radius: 15px;
@@ -458,8 +551,93 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
 .product-specs ul li span:first-child { font-weight: 500; color: var(--text-color); }
 .product-specs ul li span:last-child { color: #777; }
 
-.stage-navigation { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
-.helper-text { text-align: center; color: #888; font-size: 0.9rem; margin-top: -20px; margin-bottom: 20px; }
+/* استایل برای کانتینر ناوبری */
+.navigation-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    pointer-events: none; /* برای اینکه روی محتوای زیر تأثیر نگذارد */
+}
+
+
+.stage-navigation {
+    display: none; /* به طور پیش‌فرض پنهان */
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 8px 20px;
+    background-color: rgb(255 255 255 / 15%);
+    border-radius: 50px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: auto; /* فعال کردن تعاملات فقط برای دکمه‌ها */
+}
+
+.stage-navigation.active {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* انیمیشن فقط برای تعاملات (مثل hover) نگه داشته شود */
+.stage-navigation .btn-nav {
+    margin-bottom: 0;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50px;
+    background-color: var(--accent-color);
+    color: var(--light-text);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-hover);
+    min-width: 120px; /* این مقدار برای دکمه وسط باقی می‌ماند */
+}
+
+/* استایل‌های جدید مخصوص دکمه‌های قبلی و بعدی */
+.stage-navigation .btn-previous,
+.stage-navigation .btn-next {
+    width: 40px; /* عرض برابر با دکمه اسکرول */
+    height: 40px; /* ارتفاع برابر با دکمه اسکرول */
+    min-width: 40px; /* بازنویسی مقدار حداقل عرض */
+    padding: 0; /* حذف پدینگ */
+    border-radius: 50%; /* تبدیل به دایره */
+    font-size: 1rem; /* اندازه فونت آیکون */
+}
+
+.stage-navigation .btn-nav:hover {
+    background-color: var(--primary-color);
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+}
+
+.stage-navigation .btn-nav#review-btn {
+    background-color: var(--success-color);
+}
+
+.stage-navigation .btn-nav#review-btn:hover {
+    background-color: #218838;
+}
+
+.helper-text { 
+    text-align: center; 
+    color: #888; 
+    font-size: 0.9rem; 
+    margin-top: 0;
+    margin-bottom: 10px;
+}
 
 /* --- Modals --- */
 .modal-overlay {
@@ -492,7 +670,6 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
 .modal-content h3 { margin-bottom: 15px; color: var(--primary-color); }
 .modal-content .buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
 
-/* ===== شروع کد جدید و استاندارد کاروسل ===== */
 .modal-product-preview {
     margin-bottom: 20px;
     position: relative;
@@ -513,9 +690,8 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
 .modal-product-preview .carousel-inner {
     display: flex;
     height: 100%;
-    /* اضافه کردن این دو خط برای حل مشکل RTL */
     flex-direction: row;
-    direction: ltr; /* کاروسل همیشه از چپ به راست کار کند */
+    direction: ltr;
 }
 
 .modal-product-preview .carousel-item {
@@ -532,7 +708,6 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
     border-radius: 10px;
     box-shadow: var(--shadow);
 }
-/* ===== پایان کد جدید و استاندارد کاروسل ===== */
 
 .modal-product-preview .carousel-arrow {
     position: absolute;
@@ -548,7 +723,6 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
 .modal-product-preview .carousel-arrow.left { left: 10px; }
 .modal-product-preview .carousel-arrow.right { right: 10px; }
 
-/* استایل کانتینر رنگ‌ها (بدون تغییر از قبل) */
 #color-options {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
@@ -561,20 +735,18 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
     border-radius: 8px;
 }
 
-/* استایل هر آیتم رنگ */
 .color-swatch-wrapper {
-    position: relative; /* برای قرارگیری صحیح badge */
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* نشانگر (badge) مشکی روی رنگ */
 .color-badge {
     position: absolute;
     top: -8px;
     right: -8px;
-    background-color: #000000; /* پس‌زمینه مشکی */
+    background-color: #000000;
     color: white;
     border-radius: 50%;
     width: 22px;
@@ -584,11 +756,10 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
     justify-content: center;
     font-size: 0.7rem;
     font-weight: bold;
-    border: 2px solid white; /* حاشیه سفید برای کنتراست */
+    border: 2px solid white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* --- استایل‌های شمارنده واحد --- */
 .universal-selector {
     display: flex;
     justify-content: space-between;
@@ -637,8 +808,6 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
     text-align: center;
 }
 
-
-/* --- استایل‌های حالت‌های مختلف رنگ --- */
 .color-swatch-option.active-view {
     border-color: var(--primary-color);
     box-shadow: 0 0 8px rgba(0,0,0,0.3);
@@ -696,16 +865,99 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
 @media (max-width: 768px) {
     .fixed-header { padding: 10px; height: auto; }
     .fixed-header .header-content h1 { font-size: 1.2rem; }
-    main { padding: 0 10px; margin: calc(var(--header-height) + var(--toolbar-height) + 2px) auto 20px auto; }
-    body.sidebar-open main { margin-right: 0; }
-    .sidebar-cart { width: 100%; transform: translateX(100%); }
+
+    main {
+        padding: calc(var(--header-height) + var(--toolbar-height) + 10px) 10px 15px;
+    }  
+    body.sidebar-open main { 
+        margin-right: 0; /* در موبایل، sidebar کل صفحه را نمی‌گیرد */
+        padding-right: 10px; /* بازگشت padding-right به مقدار اصلی */
+    }
+    .sidebar-cart { width: 90%; transform: translateX(100%); }
     body.sidebar-open .sidebar-cart { transform: translateX(0); }
-    .sidebar-toggle { display: none; }
-    .stage-navigation { flex-direction: column; align-items: center; gap: 10px; }
-    .review-table { font-size: 0.9rem; }
-    .review-table th, .review-table td { padding: 8px; }
+    .stage-navigation {
+        max-width: 95%;
+        padding: 8px 10px;
+        bottom: calc(15px + env(safe-area-inset-bottom));
+    }
+    .stage-navigation .btn-nav {
+        max-width: 150px;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+        display: inline-block;
+        visibility: visible;
+    }
+    .review-table {
+        border: 0;
+    }
+
+    .review-table thead {
+        display: none;
+    }
+
+    .review-table tbody tr {
+        margin-bottom: 15px;
+        display: block;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        padding: 12px;
+        background: var(--card-bg);
+    }
+
+    .review-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        font-size: 0.9rem;
+        border-bottom: 1px dotted var(--border-color);
+        padding: 10px 5px;
+    }
+
+    .review-table td:before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: var(--primary-color);
+        flex: 0 0 40%;
+        text-align: right;
+    }
+
+    .review-table td:last-child {
+        border-bottom: 0;
+    }
+
+    .review-table .action-cell {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .review-table .action-cell button {
+        font-size: 1.1rem;
+    }
+
+    .review-table tfoot tr {
+        display: block;
+        margin-top: 20px;
+        text-align: center;
+        font-size: 1rem;
+        background: var(--card-bg);
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .review-table tfoot td {
+        display: block;
+        font-size: 1rem;
+    }
     .modal-content { width: 90%; padding: 20px; }
-    .welcome-image { width: 100%; height: auto; max-width: 600px; margin: 0 auto 20px auto; border-radius: 10px; }
+    .welcome-start-btn {
+        padding: 8px 15px;
+        width: auto;
+        max-width: 90%;
+    }
+    .welcome-image { width: 100%; height: auto; max-width: 99%; margin: 0 auto 20px auto; border-radius: 10px; }
     .stage.welcome-stage h1 { font-size: 1.8rem; margin-bottom: 15px; }
     .stage.welcome-stage p { font-size: 1rem; max-width: 90%; margin: 0 auto; }
     .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
@@ -713,7 +965,7 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
     .stage-toolbar .product-nav li { padding: 6px 12px; font-size: 0.9rem; min-width: 80px; }
     .stage-toolbar .product-nav { padding: 0 5px; }
     .floating-cart-btn { bottom: 15px; left: 15px; width: calc(var(--floating-btn-size) - 10px); height: calc(var(--floating-btn-size) - 10px); }
-    .carousel-arrow { display: none; } /* Hide arrows on mobile, use swipe */
+    .carousel-arrow { display: none; }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -723,54 +975,43 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
     .stage-toolbar .product-nav li { padding: 8px 12px; }
 }
 
-/* --- Product Color Swatches --- */
 .product-colors {
     display: flex;
     justify-content: center;
-    gap: 6px; /* فاصله بین دایره‌های رنگ */
-    margin-top: 10px; /* فاصله از بالا */
-    flex-wrap: wrap; /* اجازه می‌دهد در صورت زیاد بودن رنگ‌ها، به خط بعد بروند */
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
 }
 
 .color-dot {
     width: 16px;
     height: 16px;
-    border-radius: 50%; /* تبدیل به دایره */
-    border: 1px solid #eee; /* یک حاشیه روشن برای زیبایی */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* سایه ملایم */
+    border-radius: 50%;
+    border: 1px solid #eee;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     transition: transform 0.2s ease;
 }
 
 .color-dot:hover {
-    transform: scale(1.2); /* بزرگ شدن کمی در هنگام هاور */
+    transform: scale(1.2);
 }
 
-
 @media (max-width: 480px) {
-    /* استایل‌های مودال برای صفحه‌نمایش‌های بسیار کوچک */
     .modal-content {
-        width: 95%; /* استفاده از فضای بیشتر */
-        max-width: none; /* حذف حداکثر عرض ثابت */
-        max-height: 95vh; /* حداکثر ارتفاع ۹۵٪ صفحه */
-        overflow-y: auto; /* فعال کردن اسکرول عمودی در خود مودال */
-        padding: 15px; /* کمی کاهش فاصله داخلی */
+        width: 95%;
+        max-width: none;
+        max-height: 95vh;
+        overflow-y: auto;
+        padding: 15px;
     }
-
-    /* --- این بخش اصلاح شده است --- */
-    /* کاهش ارتفاع کاروسل در صفحات کوچک */
     .modal-product-preview {
-        height: 40vh; /* ارتفاع ثابت و مناسب برای کاروسل */
-        max-height: 40vh; /* اطمینان از اینکه بیشتر از این نمی‌شود */
+        height: 40vh;
+        max-height: 40vh;
     }
-    /* --- پایان بخش اصلاح شده --- */
-
-    /* کمی کوچک کردن دکمه‌های رنگ */
     .color-swatch-option {
         width: 35px;
         height: 35px;
     }
-
-    /* کمی کوچک کردن دکمه‌های تعداد */
     .color-swatch-option .quantity-btn {
         width: 18px;
         height: 18px;
@@ -778,8 +1019,6 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
     }
 }
 
-
-/* این قانون فرزندان مستقیم (wrapper) را مجبور به نمایش می‌کند */
 .modal-content #color-options .color-swatch-wrapper {
     display: flex !important;
     visibility: visible !important;
@@ -790,11 +1029,176 @@ body.sidebar-open .sidebar-toggle { right: calc(var(--sidebar-width) - 24px); bo
     overflow: visible !important;
 }
 
-/* این قانون خود مکعب رنگ (swatch) را مجبور به نمایش می‌کند */
 .modal-content #color-options .color-swatch-option {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
     width: 40px !important;
     height: 40px !important;
+}
+
+.main-content-with-bg {
+    background-image: url('../welcome.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.main-content-with-bg::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(244, 244, 244, 0.85);
+    z-index: -1;
+}
+
+.main-background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    display: none;
+}
+
+.main-content-with-bg .main-background-video {
+    display: block;
+}
+
+.main-content-with-bg::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(244, 244, 244, 0.85);
+    z-index: -1;
+}
+/* استایل دکمه به بالا */
+.scroll-top-btn {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    /* تغییر رنگ اصلی */
+    background-color: var(--secondary-color); 
+    color: var(--light-text);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: var(--shadow-hover);
+    z-index: 1000;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.scroll-top-btn.visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scroll-top-btn:hover {
+    background-color: var(--primary-color);
+}
+
+.scroll-top-btn i {
+    margin-top: 2px;
+}
+
+#edit-quantity-modal .modal-content {
+    text-align: center;
+}
+
+#edit-item-info {
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+#edit-quantity-modal .quantity-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+#edit-quantity-modal .quantity-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    color: var(--primary-color);
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+#edit-quantity-modal .quantity-btn:hover {
+    background: var(--secondary-color);
+    color: var(--light-text);
+}
+
+#edit-quantity-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    min-width: 50px;
+    text-align: center;
+}
+
+#delete-item-btn {
+    margin-right: 10px;
+}
+
+
+/* اطمینان از اینکه مودال حذف بالای مودال ویرایش تعداد است */
+#edit-quantity-modal {
+    z-index: 1000;
+}
+
+#delete-modal {
+    z-index: 1200; /* بالاتر از مودال ویرایش تعداد */
+}
+
+/* اطمینان از اسکرول روان تب‌ها */
+.nav-items-wrapper {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    white-space: nowrap;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-items-wrapper li {
+    flex: 0 0 auto;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-items-wrapper li.active {
+    background-color: var(--tg-theme-button-color, #007bff);
+    color: var(--tg-theme-button-text-color, #fff);
+    border-radius: 8px;
+}
+
+
+بهبود اسکرول در موبایل
+html, body {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
