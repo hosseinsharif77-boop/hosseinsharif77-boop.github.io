@@ -1,5 +1,6 @@
 import { createElementWithClass } from './utils.js';
-import { selectedItems, updateCartUI } from './cart-manager.js';
+import { selectedItems, updateCartUI, changeCount } from './cart-manager.js';
+import config from './config.js';
 
 // --- State for UI components ---
 let pendingProduct = { category: null, id: null };
@@ -7,7 +8,8 @@ let itemToDelete = null;
 let currentCarouselIndex = 0;
 let selectedColors = [];
 let currentModalColors = [];
-let activeColorIndex = null; // برای نگهداری ایندکس رنگ فعال
+let activeColorIndex = null;
+let currentEditKey = null;
 
 // --- DOM Elements Cache ---
 const elements = {
@@ -26,7 +28,13 @@ const elements = {
     navItemsWrapper: document.getElementById('nav-items-wrapper'),
     modalProductName: document.getElementById('modal-product-name'),
     carouselInner: document.getElementById('carousel-inner'),
-    carouselContainer: document.getElementById('carousel-container')
+    carouselContainer: document.getElementById('carousel-container'),
+    editQuantityModal: document.getElementById('edit-quantity-modal'),
+    editItemInfo: document.getElementById('edit-item-info'),
+    editQuantityValue: document.getElementById('edit-quantity-value'),
+    decreaseQuantityBtn: document.getElementById('decrease-quantity'),
+    increaseQuantityBtn: document.getElementById('increase-quantity'),
+    deleteItemBtn: document.getElementById('delete-item-btn')
 };
 
 // --- Cart UI Functions ---
@@ -46,9 +54,14 @@ export function updateSidebarSummary() {
             <div class="empty-state">
                 <i class="fas fa-shopping-basket"></i>
                 <p>سبد خرید شما خالی است!</p>
-                <button onclick="ui.toggleSidebar(); product.goToStage('tray')">شروع به خرید</button>
+                <button class="start-shopping-btn">شروع به خرید</button>
             </div>
         `;
+        const startBtn = elements.selectedItemsSummary.querySelector('.start-shopping-btn');
+        startBtn.addEventListener('click', () => {
+            window.ui.toggleSidebar();
+            window.product.goToStage('tray');
+        });
         return;
     }
 
@@ -60,19 +73,25 @@ export function updateSidebarSummary() {
             <div class="summary-item-info">
                 <span class="item-color-swatch" style="background-color: ${item.color};" title="${item.colorName}"></span>
                 <div>
-                    <div>${item.category} مدل ${item.model}</div>
+                    <div>${item.category} مدل ${item.description}</div>
                     <small style="color: #ccc;">${item.colorName}</small>
                 </div>
             </div>
             <div class="summary-item-controls">
-                <button class="quantity-btn" onclick="cart.changeCount('${key}', 1, event)">+</button>
+                <button class="quantity-btn increase">+</button>
                 <span class="quantity-value">${item.count}</span>
-                <button class="quantity-btn" onclick="cart.changeCount('${key}', -1, event)">-</button>
+                <button class="quantity-btn decrease">-</button>
                 <div class="tooltip-wrapper" data-tooltip="حذف محصول">
-                    <button class="remove-item-btn" onclick="ui.requestDeleteItem('${key}')"><i class="fas fa-trash"></i></button>
+                    <button class="remove-item-btn"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
         `;
+        const increaseBtn = itemDiv.querySelector('.increase');
+        const decreaseBtn = itemDiv.querySelector('.decrease');
+        const removeBtn = itemDiv.querySelector('.remove-item-btn');
+        increaseBtn.addEventListener('click', (event) => window.cart.changeCount(key, 1, event));
+        decreaseBtn.addEventListener('click', (event) => window.cart.changeCount(key, -1, event));
+        removeBtn.addEventListener('click', () => window.ui.requestDeleteItem(key));
         elements.selectedItemsSummary.appendChild(itemDiv);
     });
 }
@@ -88,6 +107,12 @@ export function updateSubmitButton() {
 
 // --- Stage & Product Grid UI ---
 export function renderActiveStage(stageId, productKeys, config) {
+    const mainContentEl = document.querySelector('main');
+    if (stageId === 'stage-welcome') {
+        mainContentEl.classList.remove('main-content-with-bg');
+    } else {
+        mainContentEl.classList.add('main-content-with-bg');
+    }
     const stages = ['stage-welcome', ...productKeys.map(key => `stage-${key}`), 'stage-review'];
     stages.forEach((id, index) => {
         const stageEl = document.getElementById(id);
@@ -110,23 +135,40 @@ export function updateNavItems(activeKey, productKeys, config) {
     elements.navItemsWrapper.innerHTML = '';
     productKeys.forEach(key => {
         const li = createElementWithClass('li', key === activeKey ? 'active' : '');
-        li.id = `nav-${key}`;
+        li.id = `tab-${key}`;
         li.tabIndex = 0;
         li.setAttribute('aria-selected', key === activeKey ? 'true' : 'false');
         li.textContent = config.products[key].name;
-        li.onclick = () => {
+        li.addEventListener('click', () => {
+            window.preventScrollReset = false;
             window.product.goToStage(key);
-            li.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        };
-        li.onkeydown = (e) => {
+            setTimeout(() => {
+                const activeTab = li;
+                activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            }, 0);
+        });
+        li.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
+                window.preventScrollReset = false;
                 window.product.goToStage(key);
-                li.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                setTimeout(() => {
+                    const activeTab = li;
+                    activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+                }, 0);
             }
-        };
+        });
         elements.navItemsWrapper.appendChild(li);
     });
+    console.log(`🔍 Updated nav items: ${elements.navItemsWrapper.querySelectorAll('li').length} items created`);
+
+    // اسکرول به وسط تب فعال بلافاصله پس از به‌روزرسانی
+    setTimeout(() => {
+        const activeTab = elements.navItemsWrapper.querySelector('.active');
+        if (activeTab) {
+            activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+        }
+    }, 0);
 }
 
 export function showSkeletons(productKey) {
@@ -160,7 +202,7 @@ export function renderProductGrid(productKey, config) {
 
         card.innerHTML = `
             <div class="product-image">
-                <img src="${item.imagesByColor[item.colors[0].hex] || 'https://picsum.photos/seed/fallback/300/300'}" alt="${item.description}" loading="lazy" onerror="this.src='https://picsum.photos/seed/fallback/300/300'; this.onerror=null;">
+                <img src="${item.imagesByColor[item.colors[0].hex] || 'https://picsum.photos/seed/fallback/300/300'}" alt="${item.description}" loading="lazy">
             </div>
             <div class="product-info">
                 <div class="product-specs">
@@ -176,13 +218,21 @@ export function renderProductGrid(productKey, config) {
             </div>
         `;
 
-        card.onclick = () => openColorModal(productKey, item.id, config);
-        card.onkeydown = (e) => {
+        const img = card.querySelector('img');
+        img.onerror = function() {
+            this.src = 'https://picsum.photos/seed/fallback/300/300';
+            this.onerror = null;
+        };
+
+        // --- اصلاح شده: استفاده از addEventListener ---
+        card.addEventListener('click', () => openColorModal(productKey, item.id, config));
+        card.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 openColorModal(productKey, item.id, config);
             }
-        };
+        });
+        
         optionsDiv.appendChild(card);
     });
 }
@@ -225,7 +275,8 @@ export function openColorModal(category, id, config) {
         swatch.title = color.name;
         swatch.dataset.index = index;
 
-        swatch.onclick = () => selectColor(index);
+        // --- اصلاح شده: استفاده از addEventListener ---
+        swatch.addEventListener('click', () => selectColor(index));
 
         swatchWrapper.appendChild(swatch);
         colorOptionsDiv.appendChild(swatchWrapper);
@@ -233,18 +284,22 @@ export function openColorModal(category, id, config) {
 
     // Add universal selector if it doesn't exist
     const modalContent = elements.colorModal.querySelector('.modal-content');
-    if (!document.getElementById('universal-selector')) {
-        const universalSelector = createElementWithClass('div', 'universal-selector');
+    let universalSelector = document.getElementById('universal-selector');
+    if (!universalSelector) {
+        universalSelector = createElementWithClass('div', 'universal-selector');
         universalSelector.id = 'universal-selector';
         universalSelector.innerHTML = `
             <p>رنگ انتخاب شده: <span id="selected-color-name">-</span></p>
             <div class="quantity-controls">
-                <button class="quantity-btn-universal" onclick="ui.adjustUniversalQuantity(-1)">-</button>
+                <button class="quantity-btn-universal" id="decrease-universal-btn">-</button>
                 <span id="universal-quantity-value">0</span>
-                <button class="quantity-btn-universal" onclick="ui.adjustUniversalQuantity(1)">+</button>
+                <button class="quantity-btn-universal" id="increase-universal-btn">+</button>
             </div>
         `;
         modalContent.insertBefore(universalSelector, document.getElementById('color-info'));
+
+        document.getElementById('decrease-universal-btn').addEventListener('click', () => adjustUniversalQuantity(-1));
+        document.getElementById('increase-universal-btn').addEventListener('click', () => adjustUniversalQuantity(1));
     }
 
     elements.colorModal.style.display = 'block';
@@ -255,11 +310,8 @@ export function closeColorModal() {
     elements.colorModal.style.display = 'none';
 }
 
-// --- تابع اصلاح شده: فقط رنگ را فعال می‌کند ---
 function selectColor(index) {
     activeColorIndex = index;
-    // فقط رنگ را فعال کن، تعدادش را تغییر نده.
-    // تعداد توسط دکمه های + و - مدیریت میشود.
     updateUIForSelectedColor();
 }
 
@@ -288,7 +340,6 @@ function updateUIForSelectedColor() {
         selectedColorName.textContent = '-';
     }
 
-    // Update swatch badges and active state
     document.querySelectorAll('.color-swatch-option').forEach((swatch, index) => {
         const quantity = selectedColors[index].quantity;
         let badge = swatch.querySelector('.color-badge');
@@ -336,9 +387,11 @@ export function confirmSelection(config) {
                     selectedItems[key] = {
                         category: config.products[category].name,
                         model: id,
+                        description: product.description,
                         color: hex,
                         colorName: color.name,
-                        count: colorEntry.quantity
+                        count: colorEntry.quantity,
+                        price: product.price
                     };
                 }
             }
@@ -346,29 +399,27 @@ export function confirmSelection(config) {
     });
     closeColorModal();
     updateCartUI();
+    
+    // --- شروع کد جدید ---
+    // فعال کردن پرچم برای جلوگیری از ریست اسکرول پس از افزودن محصول
+    window.preventScrollReset = true;
+    // --- پایان کد جدید ---
+    
     window.product.renderActiveStage();
 }
 
 export function changeCarouselSlide(delta) {
     currentCarouselIndex = (currentCarouselIndex + delta + currentModalColors.length) % currentModalColors.length;
     elements.carouselInner.style.transform = `translateX(-${currentCarouselIndex * 100}%)`;
-    // When carousel changes, also select that color
     selectColor(currentCarouselIndex);
 }
 
-function updateActiveViewIndicator() {
-    document.querySelectorAll('.color-swatch-option').forEach((swatch, index) => {
-        if (index === currentCarouselIndex) {
-            swatch.classList.add('active-view');
-        } else {
-            swatch.classList.remove('active-view');
-        }
-    });
-}
-
-// --- Delete Modal ---
 export function requestDeleteItem(key) {
     itemToDelete = key;
+    // این بخش را حذف کنید
+    // if (elements.editQuantityModal.style.display === 'block') {
+    //     closeEditQuantityModal();
+    // }
     elements.deleteModal.style.display = 'block';
 }
 
@@ -378,34 +429,121 @@ export function closeDeleteModal(event) {
     itemToDelete = null;
 }
 
-export function confirmDelete(event) {
-    if (event) event.stopPropagation();
-    if (itemToDelete) {
-        window.cart.confirmDelete(itemToDelete);
+export function confirmDelete(key) {
+    // --- شروع کد اصلاح شده ---
+    // بررسی دفاعی برای اطمینان از وجود کلید
+    if (!key) {
+        console.error('confirmDelete called without a valid key.');
+        return;
     }
-    closeDeleteModal();
+    // --- پایان کد اصلاح شده ---
+
+    if (selectedItems[key]) {
+        delete selectedItems[key];
+        updateCartUI();
+        if (window.product) {
+            window.product.renderActiveStage();
+            if (window.product.stages[window.product.currentStage] === 'stage-review') {
+                window.ui.populateReviewTable();
+            }
+        }
+    } else {
+        console.warn(`Item with key "${key}" not found in selectedItems for deletion.`);
+    }
 }
 
-// --- Review Table ---
 export function populateReviewTable() {
     elements.reviewTbody.innerHTML = '';
+    let totalPrice = 0;
+
     Object.keys(selectedItems).forEach(key => {
         const item = selectedItems[key];
+        const priceNum = parseInt(item.price.replace(/[^0-9]/g, '')) || 0;
+        const itemTotal = priceNum * item.count;
+        totalPrice += itemTotal;
+
         const row = elements.reviewTbody.insertRow();
-        row.innerHTML = `
-            <td>${item.category}</td>
-            <td>مدل ${item.model}</td>
-            <td class="color-cell"><span class="color-swatch" style="background-color: ${item.color}"></span> ${item.colorName}</td>
-            <td>${item.count}</td>
-            <td class="action-cell">
-                <button class="btn-secondary btn-small" onclick="product.editItem('${key}')">ویرایش</button>
-                <button class="btn-danger btn-small" onclick="ui.requestDeleteItem('${key}')">حذف</button>
-            </td>
-        `;
+        
+        // ایجاد سلول‌ها به روش استاندارد
+        const cellProduct = row.insertCell();
+        cellProduct.setAttribute('data-label', 'محصول');
+        cellProduct.textContent = item.category;
+
+        const cellModel = row.insertCell();
+        cellModel.setAttribute('data-label', 'مدل');
+        cellModel.textContent = item.description;
+
+        const cellColor = row.insertCell();
+        cellColor.setAttribute('data-label', 'رنگ');
+        cellColor.className = 'color-cell';
+        cellColor.innerHTML = `<span class="color-swatch" style="background-color: ${item.color}"></span> ${item.colorName}`;
+
+        const cellCount = row.insertCell();
+        cellCount.setAttribute('data-label', 'تعداد');
+        cellCount.textContent = item.count;
+
+        const cellAction = row.insertCell();
+        cellAction.setAttribute('data-label', 'عملیات');
+        cellAction.className = 'action-cell';
+
+        // --- شروع کد اصلاح شده ---
+        // ایجاد دکمه به صورت برنامه‌نویسی و اتصال رویداد به صورت امن
+        const editButton = document.createElement('button');
+        editButton.className = 'edit-btn';
+        editButton.title = 'ویرایش';
+        editButton.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+        
+        // استفاده از addEventListener به جای onclick
+        editButton.addEventListener('click', () => {
+            window.ui.openEditQuantityModal(key);
+        });
+        
+        cellAction.appendChild(editButton);
+        // --- پایان کد اصلاح شده ---
     });
+
+    document.getElementById('total-price').textContent = `${totalPrice.toLocaleString()} تومان`;
 }
 
-// --- Sidebar ---
+export function openEditQuantityModal(key) {
+    currentEditKey = key;
+    const item = selectedItems[key];
+    if (!item) return;
+
+    elements.editItemInfo.innerHTML = `ویرایش تعداد برای: ${item.category} - ${item.description} (${item.colorName})`;
+    elements.editQuantityValue.textContent = item.count;
+
+    elements.decreaseQuantityBtn.addEventListener('click', () => {
+        window.cart.changeCount(currentEditKey, -1);
+        if (selectedItems[currentEditKey]) {
+            elements.editQuantityValue.textContent = selectedItems[currentEditKey].count;
+            populateReviewTable();
+        } else {
+            closeEditQuantityModal();
+        }
+    });
+
+    elements.increaseQuantityBtn.addEventListener('click', () => {
+        window.cart.changeCount(currentEditKey, 1);
+        if (selectedItems[currentEditKey]) {
+            elements.editQuantityValue.textContent = selectedItems[currentEditKey].count;
+            populateReviewTable();
+        }
+    });
+
+    // --- اصلاح شده: استفاده از addEventListener ---
+    elements.deleteItemBtn.addEventListener('click', () => {
+        requestDeleteItem(key);
+    });
+
+    elements.editQuantityModal.style.display = 'block';
+}
+
+export function closeEditQuantityModal() {
+    elements.editQuantityModal.style.display = 'none';
+    currentEditKey = null;
+}
+
 export function toggleSidebar() {
     const body = document.body;
     body.classList.toggle('sidebar-open');
@@ -441,7 +579,43 @@ export function setupCarouselSwipe() {
     elements.carouselContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
 }
 
-// Expose ui functions to global scope for inline onclick handlers
+function setupScrollTopBtn() {
+    const scrollTopBtn = document.getElementById('scroll-top-btn');
+    if (!scrollTopBtn) {
+        const btn = document.createElement('button');
+        btn.id = 'scroll-top-btn';
+        btn.className = 'scroll-top-btn';
+        btn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+        btn.title = 'برگشت به بالا';
+        document.body.appendChild(btn);
+        // --- اصلاح شده: آپدیت متغیر ---
+        scrollTopBtn = btn;
+    }
+
+    let isVisible = false;
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY;
+        if (scrollY > 200 && !isVisible) {
+            scrollTopBtn.style.display = 'block';
+            scrollTopBtn.classList.add('visible');
+            isVisible = true;
+        } else if (scrollY <= 200 && isVisible) {
+            scrollTopBtn.classList.remove('visible');
+            setTimeout(() => {
+                scrollTopBtn.style.display = 'none';
+            }, 300);
+            isVisible = false;
+        }
+    });
+
+    // --- اصلاح شده: استفاده از addEventListener ---
+    scrollTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+setupScrollTopBtn();
+
 window.ui = {
     toggleSidebar,
     openColorModal,
@@ -451,5 +625,7 @@ window.ui = {
     changeCarouselSlide,
     requestDeleteItem,
     closeDeleteModal,
-    confirmDelete
+    confirmDelete,
+    openEditQuantityModal,
+    closeEditQuantityModal
 };
