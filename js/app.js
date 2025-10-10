@@ -6,7 +6,7 @@ import {
     currentStage 
 } from './product-manager.js';
 import { toggleSidebar, setupCarouselSwipe } from './ui-components.js'; 
-import { updateCartUI, changeCount, confirmDelete } from './cart-manager.js'; // <-- تغییر: واردات استاتیک
+import { updateCartUI, changeCount, confirmDelete } from './cart-manager.js';
 import config from './config.js'; 
 
 // --- Global Elements ---
@@ -21,14 +21,6 @@ function initializeApp() {
     updateHeaderHeight();
     window.addEventListener('resize', updateHeaderHeight);
     
-    if (elements.startButton) {
-        elements.startButton.addEventListener('click', () => {
-            startApp();
-        });
-    } else {
-        console.error('❌ Start button not found');
-    }
-    
     createProductStages();
     setupEventListeners();
     setupKeyboardNavigation();
@@ -38,9 +30,10 @@ function initializeApp() {
 
     updateCartUI();
     
+    // Expose necessary functions to the global scope for other scripts
     window.app = {
         goToPreviousStage: () => window.product.goToPreviousStage(),
-        goToNextStage: () => window.product.goToNextStage(),
+        goToNextStage: () => window.product.goToNextProduct(), // اصلاح: goToNextProduct
         config: config
     };
     
@@ -50,9 +43,7 @@ function initializeApp() {
 // --- Event Listeners Setup ---
 function setupEventListeners() {
     if (elements.startButton) {
-        elements.startButton.addEventListener('click', () => {
-            startApp();
-        });
+        elements.startButton.addEventListener('click', startApp);
     } else {
         console.error('❌ Start button not found');
     }
@@ -77,9 +68,13 @@ function setupEventListeners() {
         finalSubmitBtn.addEventListener('click', () => window.product.goToReviewStage());
     }
 
+
     const colorModalConfirmBtn = document.getElementById('color-modal-confirm-btn');
     if (colorModalConfirmBtn) {
-        colorModalConfirmBtn.addEventListener('click', window.ui.confirmSelection);
+        // فراخوانی ساده و تمیز. دیگر نیازی به پاس دادن آرگومان نیست.
+        colorModalConfirmBtn.addEventListener('click', () => {
+            window.ui.confirmSelection();
+        });
     }
 
     const colorModalCancelBtn = document.getElementById('color-modal-cancel-btn');
@@ -102,10 +97,16 @@ function setupEventListeners() {
         editQuantityModalCancelBtn.addEventListener('click', window.ui.closeEditQuantityModal);
     }
 
+    // --- شروع کد اصلاح شده ---
     const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
     if (confirmDeleteBtn) {
-        confirmDeleteBtn.addEventListener('click', window.ui.confirmDelete);
+        confirmDeleteBtn.addEventListener('click', () => {
+            if (window.ui.itemToDelete) {
+                window.ui.confirmDelete(window.ui.itemToDelete);
+            }
+        });
     }
+    // --- پایان کد اصلاح شده ---
 
     const navReviewPreviousBtn = document.getElementById('nav-review-previous-btn');
     if (navReviewPreviousBtn) {
@@ -240,13 +241,11 @@ function setupSwipeGestures() {
     }
 }
 
-// --- شروع کد اصلاح شده ---
-// Expose cart functions to global scope
+// Expose cart functions to global scope if needed elsewhere
 window.cart = {
     changeCount,
     confirmDelete
 };
-// --- پایان کد اصلاح شده ---
 
 // Start the application
-initializeApp();
+document.addEventListener('DOMContentLoaded', initializeApp);
