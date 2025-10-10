@@ -14,9 +14,8 @@
 
 <header class="fixed-header">
     <div class="header-content">
-        <h1></i> سنگین کالکشن </h1>
+        <h1> سنگین کالکشن </h1>
         <img src="assets/images/5-removebg-preview.png" alt="لوگوی سنگین کالکشن" class="logo">
-
     </div>
 </header>
 <div class="stage-toolbar" id="stage-toolbar">
@@ -30,8 +29,8 @@
         <h1>به دنیای سنگ مصنوعی خوش آمدید!</h1>
         <img src="assets/images/100911-ezgif.com-video-to-gif-converter (1).gif" alt="ست سنگ مصنوعی" class="welcome-image">
         <p>ست محصولات سنگ مصنوعی خود را بسازید. از سینی تا مجسمه، همه چیز را انتخاب کنید و فضایی منحصر به فرد برای خود ایجاد کنید.</p>
-        <button class="welcome-start-btn" id="start-button">شروع</button>
     </section>
+    <button class="welcome-start-btn" id="start-button">شروع</button>
 
     <section class="stage" id="stage-review">
         <h1>بازبینی نهایی سفارش</h1>
@@ -47,28 +46,36 @@
                 </tr>
             </thead>
             <tbody id="review-tbody"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" style="text-align: right; font-weight: bold;">مجموع کل سفارش:</td>
+                    <td id="total-price" style="font-weight: bold;">0 تومان</td>
+                </tr>
+            </tfoot>
         </table>
-        <div class="stage-navigation">
-            <button class="btn-secondary" onclick="app.goToPreviousStage()">بازگشت به انتخاب</button>
-            <button class="btn-primary" onclick="order.submitOrder()">ارسال نهایی سفارش</button>
-        </div>
     </section>
+
+    <div class="stage-navigation" id="nav-review">
+        <button class="btn-nav btn-previous" id="nav-review-previous-btn"><i class="fas fa-arrow-right"></i></button>
+        <button class="btn-nav btn-review" id="nav-review-submit-btn">ارسال سفارش</button>
+    </div>
+    <div id="navigation-container" class="navigation-container"></div>
 </main>
 
 <aside role="complementary" class="sidebar-cart" id="sidebar-cart" aria-label="سبد خرید">
     <div class="sidebar-header">
-        <h2><i class="fas fa-shopping-cart"></i> سبد خرید شما <button class="btn-small" onclick="ui.toggleSidebar()" aria-label="بستن سبد خرید"><i class="fas fa-times"></i></button></h2>
+        <h2><i class="fas fa-shopping-cart"></i> سبد خرید شما <button class="btn-small" id="sidebar-close-btn" aria-label="بستن سبد خرید"><i class="fas fa-times"></i></button></h2>
     </div>
     <div class="sidebar-content">
         <div class="selected-items-summary" id="selected-items-summary"></div>
     </div>
     <div class="sidebar-footer">
         <div class="total-summary">مجموع آیتم‌ها: <span id="total-items-count">0</span></div>
-        <button class="btn-primary" id="final-submit-btn" onclick="product.goToReviewStage()">بازبینی و تأیید نهایی</button>
+        <button class="btn-primary" id="final-submit-btn">بازبینی و تأیید نهایی</button>
     </div>
 </aside>
 
-<button class="floating-cart-btn" onclick="ui.toggleSidebar()" aria-label="باز کردن سبد خرید" id="floating-cart-btn">
+<button class="floating-cart-btn" id="floating-cart-btn" aria-label="باز کردن سبد خرید">
     <i class="fas fa-shopping-cart"></i>
     <span class="cart-badge" id="cart-badge">0</span>
 </button>
@@ -80,29 +87,52 @@
             <div class="carousel-container" id="carousel-container">
                 <div class="carousel-inner" id="carousel-inner"></div>
             </div>
-            <button class="carousel-arrow left" onclick="ui.changeCarouselSlide(1)"><i class="fas fa-chevron-left"></i></button>
-            <button class="carousel-arrow right" onclick="ui.changeCarouselSlide(-1)"><i class="fas fa-chevron-right"></i></button>
+            <button class="carousel-arrow left" id="carousel-arrow-left"><i class="fas fa-chevron-left"></i></button>
+            <button class="carousel-arrow right" id="carousel-arrow-right"><i class="fas fa-chevron-right"></i></button>
         </div>
-        <p class="color-info">همزمان می‌توانید چند رنگ انتخاب کنید</p>
+        <p class="color-info">برای اضافه کردن محصول ابتدا رنگ را انتخاب کنید</p>
         <div class="color-options" id="color-options"></div>
         <div class="buttons">
-            <button class="btn-primary" onclick="ui.confirmSelection()">تایید انتخاب</button>
-            <button class="btn-secondary" onclick="ui.closeColorModal()">انصراف</button>
+            <button class="btn-primary" id="color-modal-confirm-btn">تأیید انتخاب</button>
+            <button class="btn-secondary" id="color-modal-cancel-btn">انصراف</button>
         </div>
     </div>
 </div>
 
 <div id="delete-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
     <div class="modal-content">
-        <h3 id="delete-modal-title">تایید حذف</h3>
+        <h3 id="delete-modal-title">تأیید حذف</h3>
         <p>آیا از حذف این محصول از سبد خرید مطمئن هستید؟</p>
         <div class="buttons">
-            <button class="btn-danger btn-small" id="confirm-delete-btn" onclick="ui.confirmDelete(event)">بله، حذف شود</button>
-            <button class="btn-secondary btn-small" onclick="ui.closeDeleteModal(event)">انصراف</button>
+            <button class="btn-danger btn-small" id="confirm-delete-btn">بله، حذف شود</button>
+            <button class="btn-secondary btn-small" id="delete-modal-cancel-btn">انصراف</button>
         </div>
     </div>
 </div>
 
+<div id="edit-quantity-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="edit-quantity-title">
+    <div class="modal-content">
+        <h3 id="edit-quantity-title">ویرایش تعداد</h3>
+        <p id="edit-item-info"></p>
+        <div class="quantity-controls">
+            <button class="quantity-btn" id="decrease-quantity">-</button>
+            <span id="edit-quantity-value">0</span>
+            <button class="quantity-btn" id="increase-quantity">+</button>
+        </div>
+        <div class="buttons">
+            <button class="btn-danger" id="delete-item-btn">حذف محصول</button>
+            <button class="btn-primary" id="edit-quantity-modal-confirm-btn">تأیید</button>
+            <button class="btn-secondary" id="edit-quantity-modal-cancel-btn">انصراف</button>
+        </div>
+    </div>
+</div>
+
+<button class="scroll-top-btn" id="scroll-top-btn" title="برگشت به بالا" style="display: none;">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
 <script type="module" src="js/app.js"></script>
+</body>
+</html>le" src="js/app.js"></script>
 </body>
 </html>
