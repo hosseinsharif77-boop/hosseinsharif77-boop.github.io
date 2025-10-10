@@ -1,4 +1,3 @@
-// js/cart-manager.js
 import { updateCartBadge, updateSidebarSummary, updateTotalCount, updateSubmitButton } from './ui-components.js';
 
 // State of the cart
@@ -11,7 +10,7 @@ export function updateCartUI() {
     updateSubmitButton();
 }
 
-export function changeCount(key, delta, event) {
+export function changeCount(key, delta, event = null) {
     if (event) event.stopPropagation();
     if (selectedItems[key]) {
         const newCount = selectedItems[key].count + delta;
@@ -22,12 +21,16 @@ export function changeCount(key, delta, event) {
         } else {
             selectedItems[key].count = newCount;
             updateCartUI();
+            if (window.product && window.product.stages[window.product.currentStage] === 'stage-review') {
+                window.ui.populateReviewTable();
+            }
         }
+    } else {
+        console.error(`❌ Item with key ${key} not found in selectedItems`);
     }
 }
 
 export function requestDeleteItem(key) {
-    // This function will be connected to the UI module
     window.ui.requestDeleteItem(key);
 }
 
@@ -35,7 +38,11 @@ export function confirmDelete(key) {
     if (selectedItems[key]) {
         delete selectedItems[key];
         updateCartUI();
-        // Re-render the active stage to reflect changes (e.g., remove 'selected' class)
-        if(window.product) window.product.renderActiveStage();
+        if (window.product) {
+            window.product.renderActiveStage();
+            if (window.product.stages[window.product.currentStage] === 'stage-review') {
+                window.ui.populateReviewTable();
+            }
+        }
     }
 }
