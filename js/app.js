@@ -2,12 +2,12 @@ import { updateHeaderHeight } from './utils.js';
 import { 
     createProductStages, 
     startApp, 
-    stages,          // <-- stages را وارد کنید
-    currentStage     // <-- currentStage را وارد کنید
+    stages, 
+    currentStage 
 } from './product-manager.js';
 import { toggleSidebar, setupCarouselSwipe } from './ui-components.js'; 
-import { updateCartUI } from './cart-manager.js';
-import config from './config.js'; // <-- import config
+import { updateCartUI, changeCount, confirmDelete } from './cart-manager.js'; // <-- تغییر: واردات استاتیک
+import config from './config.js'; 
 
 // --- Global Elements ---
 const elements = {
@@ -21,18 +21,23 @@ function initializeApp() {
     updateHeaderHeight();
     window.addEventListener('resize', updateHeaderHeight);
     
-    elements.startButton.addEventListener('click', startApp);
+    if (elements.startButton) {
+        elements.startButton.addEventListener('click', () => {
+            startApp();
+        });
+    } else {
+        console.error('❌ Start button not found');
+    }
     
     createProductStages();
     setupEventListeners();
     setupKeyboardNavigation();
     setupSwipeGestures();
-    setupCarouselSwipe(); 
+    setupCarouselSwipe();
     setupMainContentSwipe();
 
     updateCartUI();
     
-    // اضافه کردن آبجکت‌ها به scope سراسری
     window.app = {
         goToPreviousStage: () => window.product.goToPreviousStage(),
         goToNextStage: () => window.product.goToNextStage(),
@@ -44,21 +49,79 @@ function initializeApp() {
 
 // --- Event Listeners Setup ---
 function setupEventListeners() {
-    elements.floatingCartBtn.onclick = toggleSidebar;
-    elements.floatingCartBtn.onkeydown = (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            toggleSidebar();
-        }
-    };
+    if (elements.startButton) {
+        elements.startButton.addEventListener('click', () => {
+            startApp();
+        });
+    } else {
+        console.error('❌ Start button not found');
+    }
 
-    document.getElementById('confirm-delete-btn').onclick = window.ui.confirmDelete;
-    
-    window.onclick = (e) => {
+    const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+    if (sidebarCloseBtn) {
+        sidebarCloseBtn.addEventListener('click', window.ui.toggleSidebar);
+    }
+
+    if (elements.floatingCartBtn) {
+        elements.floatingCartBtn.addEventListener('click', window.ui.toggleSidebar);
+        elements.floatingCartBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                window.ui.toggleSidebar();
+            }
+        });
+    }
+
+    const finalSubmitBtn = document.getElementById('final-submit-btn');
+    if (finalSubmitBtn) {
+        finalSubmitBtn.addEventListener('click', () => window.product.goToReviewStage());
+    }
+
+    const colorModalConfirmBtn = document.getElementById('color-modal-confirm-btn');
+    if (colorModalConfirmBtn) {
+        colorModalConfirmBtn.addEventListener('click', window.ui.confirmSelection);
+    }
+
+    const colorModalCancelBtn = document.getElementById('color-modal-cancel-btn');
+    if (colorModalCancelBtn) {
+        colorModalCancelBtn.addEventListener('click', window.ui.closeColorModal);
+    }
+
+    const deleteModalCancelBtn = document.getElementById('delete-modal-cancel-btn');
+    if (deleteModalCancelBtn) {
+        deleteModalCancelBtn.addEventListener('click', window.ui.closeDeleteModal);
+    }
+
+    const editQuantityModalConfirmBtn = document.getElementById('edit-quantity-modal-confirm-btn');
+    if (editQuantityModalConfirmBtn) {
+        editQuantityModalConfirmBtn.addEventListener('click', window.ui.closeEditQuantityModal);
+    }
+
+    const editQuantityModalCancelBtn = document.getElementById('edit-quantity-modal-cancel-btn');
+    if (editQuantityModalCancelBtn) {
+        editQuantityModalCancelBtn.addEventListener('click', window.ui.closeEditQuantityModal);
+    }
+
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', window.ui.confirmDelete);
+    }
+
+    const navReviewPreviousBtn = document.getElementById('nav-review-previous-btn');
+    if (navReviewPreviousBtn) {
+        navReviewPreviousBtn.addEventListener('click', () => window.product.goToPreviousStage());
+    }
+
+    const navReviewSubmitBtn = document.getElementById('nav-review-submit-btn');
+    if (navReviewSubmitBtn) {
+        navReviewSubmitBtn.addEventListener('click', () => window.order.submitOrder());
+    }
+
+    document.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal-overlay')) {
             e.target.style.display = 'none';
         }
-    };
+    });
 
     document.addEventListener('click', (e) => {
         if (
@@ -80,6 +143,7 @@ function setupKeyboardNavigation() {
         if (e.key === 'Escape') {
             window.ui.closeColorModal();
             window.ui.closeDeleteModal();
+            window.ui.closeEditQuantityModal();
             if (document.body.classList.contains('sidebar-open')) {
                 toggleSidebar();
             }
@@ -91,10 +155,9 @@ function setupKeyboardNavigation() {
 function setupMainContentSwipe() {
     let touchStartX = 0;
     const mainContent = document.getElementById('main-content');
-    const swipeThreshold = 80; // حداقل فاصله برای تشخیص swipe (پیکسل)
+    const swipeThreshold = 80;
 
     const handleTouchStart = (e) => {
-        // فقط اگر روی خود محتوای اصلی لمس شده باشد، شروع کن
         if (e.target === mainContent || mainContent.contains(e.target)) {
             touchStartX = e.changedTouches[0].screenX;
         }
@@ -104,26 +167,20 @@ function setupMainContentSwipe() {
         const touchEndX = e.changedTouches[0].screenX;
         const swipeDistance = touchEndX - touchStartX;
 
-        // اگر فاصله کشیدن انگشت به اندازه کافی بود
         if (Math.abs(swipeDistance) > swipeThreshold) {
-            // === این بخش را اصلاح و ساده کرده‌ایم ===
             const currentStageId = stages[currentStage];
             const isProductStage = currentStageId.startsWith('stage-') && !['stage-welcome', 'stage-review'].includes(currentStageId);
 
             if (isProductStage) {
                 if (swipeDistance > 0) {
-                    // کشیدن به راست -> رفتن به محصول قبلی
                     window.product.goToPreviousProduct();
                 } else {
-                    // کشیدن به چپ -> رفتن به محصول بعدی
                     window.product.goToNextProduct();
                 }
             }
-            // === پایان بخش اصلاح شده ===
         }
     };
 
-    // اضافه کردن شنونده‌های رویداد تاچ
     mainContent.addEventListener('touchstart', handleTouchStart, { passive: true });
     mainContent.addEventListener('touchend', handleTouchEnd, { passive: true });
 }
@@ -183,12 +240,13 @@ function setupSwipeGestures() {
     }
 }
 
-// Expose cart functions to global scope for inline handlers
+// --- شروع کد اصلاح شده ---
+// Expose cart functions to global scope
 window.cart = {
-    changeCount: (key, delta, event) => import('./cart-manager.js').then(module => module.changeCount(key, delta, event)),
-    // --- این خط را اضافه کنید ---
-    confirmDelete: (key) => import('./cart-manager.js').then(module => module.confirmDelete(key))
+    changeCount,
+    confirmDelete
 };
+// --- پایان کد اصلاح شده ---
 
 // Start the application
 initializeApp();
