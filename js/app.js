@@ -1,3 +1,8 @@
+// js/app.js
+
+// ==========================================================================
+// 1. Imports
+// ==========================================================================
 import { updateHeaderHeight } from './utils.js';
 import { 
     createProductStages, 
@@ -5,18 +10,38 @@ import {
     stages, 
     currentStage 
 } from './product-manager.js';
-import { toggleSidebar, setupCarouselSwipe } from './ui-components.js'; 
-import { updateCartUI, changeCount, confirmDelete } from './cart-manager.js';
+import { 
+    toggleSidebar, 
+    setupCarouselSwipe, 
+    setSubmitButtonState,
+    openEmptyCartModal,
+    closeEmptyCartModal,
+    openSubmitOrderModal,
+    closeSubmitOrderModal,
+    openOrderErrorModal,
+    closeOrderErrorModal
+} from './ui-components.js';
+import { 
+    updateCartUI, 
+    changeCount, 
+    confirmDelete, 
+    selectedItems 
+} from './cart-manager.js';
+import { submitOrder } from './order-manager.js';
 import config from './config.js'; 
 
-// --- Global Elements ---
+// ==========================================================================
+// 2. Global Elements
+// ==========================================================================
 const elements = {
     floatingCartBtn: document.getElementById('floating-cart-btn'),
     sidebarCart: document.getElementById('sidebar-cart'),
     startButton: document.getElementById('start-button')
 };
 
-// --- App Initialization ---
+// ==========================================================================
+// 3. App Initialization
+// ==========================================================================
 function initializeApp() {
     updateHeaderHeight();
     window.addEventListener('resize', updateHeaderHeight);
@@ -33,14 +58,16 @@ function initializeApp() {
     // Expose necessary functions to the global scope for other scripts
     window.app = {
         goToPreviousStage: () => window.product.goToPreviousStage(),
-        goToNextStage: () => window.product.goToNextProduct(), // اصلاح: goToNextProduct
+        goToNextStage: () => window.product.goToNextProduct(),
         config: config
     };
     
     window.appConfig = config;
 }
 
-// --- Event Listeners Setup ---
+// ==========================================================================
+// 4. Event Listeners Setup
+// ==========================================================================
 function setupEventListeners() {
     if (elements.startButton) {
         elements.startButton.addEventListener('click', startApp);
@@ -50,15 +77,15 @@ function setupEventListeners() {
 
     const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
     if (sidebarCloseBtn) {
-        sidebarCloseBtn.addEventListener('click', window.ui.toggleSidebar);
+        sidebarCloseBtn.addEventListener('click', toggleSidebar);
     }
 
     if (elements.floatingCartBtn) {
-        elements.floatingCartBtn.addEventListener('click', window.ui.toggleSidebar);
+        elements.floatingCartBtn.addEventListener('click', toggleSidebar);
         elements.floatingCartBtn.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                window.ui.toggleSidebar();
+                toggleSidebar();
             }
         });
     }
@@ -68,10 +95,8 @@ function setupEventListeners() {
         finalSubmitBtn.addEventListener('click', () => window.product.goToReviewStage());
     }
 
-
     const colorModalConfirmBtn = document.getElementById('color-modal-confirm-btn');
     if (colorModalConfirmBtn) {
-        // فراخوانی ساده و تمیز. دیگر نیازی به پاس دادن آرگومان نیست.
         colorModalConfirmBtn.addEventListener('click', () => {
             window.ui.confirmSelection();
         });
@@ -97,7 +122,6 @@ function setupEventListeners() {
         editQuantityModalCancelBtn.addEventListener('click', window.ui.closeEditQuantityModal);
     }
 
-    // --- شروع کد اصلاح شده ---
     const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
     if (confirmDeleteBtn) {
         confirmDeleteBtn.addEventListener('click', () => {
@@ -106,17 +130,43 @@ function setupEventListeners() {
             }
         });
     }
-    // --- پایان کد اصلاح شده ---
 
     const navReviewPreviousBtn = document.getElementById('nav-review-previous-btn');
     if (navReviewPreviousBtn) {
         navReviewPreviousBtn.addEventListener('click', () => window.product.goToPreviousStage());
     }
 
+    // --- رویدادهای مربوط به ارسال سفارش ---
     const navReviewSubmitBtn = document.getElementById('nav-review-submit-btn');
     if (navReviewSubmitBtn) {
-        navReviewSubmitBtn.addEventListener('click', () => window.order.submitOrder());
+        // رویداد کلیک اصلی برای شروع فرآیند
+        navReviewSubmitBtn.addEventListener('click', handleInitialSubmitClick);
     }
+
+    // رویداد کلیک برای دکمه تایید در مودال
+    const confirmSubmitBtn = document.getElementById('confirm-submit-order-btn');
+    if (confirmSubmitBtn) {
+        confirmSubmitBtn.addEventListener('click', handleFinalSubmit);
+    }
+
+    // رویداد کلیک برای دکمه انصراف
+    const cancelSubmitBtn = document.getElementById('cancel-submit-order-btn');
+    if (cancelSubmitBtn) {
+        cancelSubmitBtn.addEventListener('click', closeSubmitOrderModal);
+    }
+
+    // رویداد کلیک برای دکمه "باشه" در مودال سبد خالی
+    const emptyCartOkBtn = document.getElementById('empty-cart-modal-ok-btn');
+    if (emptyCartOkBtn) {
+        emptyCartOkBtn.addEventListener('click', closeEmptyCartModal);
+    }
+
+    // رویداد کلیک برای دکمه "تلاش مجدد" در مودال خطا
+    const retryOrderBtn = document.getElementById('retry-order-btn');
+    if (retryOrderBtn) {
+        retryOrderBtn.addEventListener('click', handleFinalSubmit);
+    }
+    // --- پایان رویدادهای ارسال سفارش ---
 
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal-overlay')) {
@@ -138,7 +188,62 @@ function setupEventListeners() {
     });
 }
 
-// --- Keyboard Navigation ---
+// ==========================================================================
+// 5. Order Submission Handler Functions
+// ==========================================================================
+
+/**
+ * مدیریت اولین کلیک روی دکمه ارسال سفارش.
+ * بررسی می‌کند که آیا سبد خرید خالی است یا خیر و مودال مناسب را نمایش می‌دهد.
+ */
+function handleInitialSubmitClick() {
+    const submitButton = document.getElementById('nav-review-submit-btn');
+    if (!submitButton) return;
+
+    // 1. محاسبه مجموع قیمت
+    let totalPrice = 0;
+    Object.values(selectedItems).forEach(item => {
+        const priceNum = parseInt(item.price.replace(/[^0-9]/g, '')) || 0;
+        totalPrice += priceNum * item.count;
+    });
+
+    // 2. بررسی خالی بودن سبد خرید
+    if (totalPrice === 0) {
+        openEmptyCartModal();
+        return;
+    }
+
+    // 3. اگر سبد خالی نبود، مودال تایید را نمایش بده
+    openSubmitOrderModal();
+}
+
+/**
+ * مدیریت نهایی ارسال سفارش پس از تایید کاربر در مودال.
+ * وضعیت دکمه را مدیریت کرده و تابع ارسال از order-manager را فراخوانی می‌کند.
+ */
+function handleFinalSubmit() {
+    const submitButton = document.getElementById('nav-review-submit-btn');
+    if (!submitButton) return;
+
+    // تعریف توابع callback برای موفقیت و خطا
+    const onSuccess = () => {
+        setSubmitButtonState(submitButton, 'success');
+        closeSubmitOrderModal();
+    };
+
+    const onError = () => {
+        setSubmitButtonState(submitButton, 'error');
+        closeSubmitOrderModal();
+        openOrderErrorModal();
+    };
+
+    // فراخوانی تابع submitOrder از order-manager.js
+    submitOrder(submitButton, onSuccess, onError);
+}
+
+// ==========================================================================
+// 6. Other Functions (Unchanged)
+// ==========================================================================
 function setupKeyboardNavigation() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -152,7 +257,6 @@ function setupKeyboardNavigation() {
     });
 }
 
-// --- Swipe Navigation for Main Content ---
 function setupMainContentSwipe() {
     let touchStartX = 0;
     const mainContent = document.getElementById('main-content');
@@ -186,7 +290,6 @@ function setupMainContentSwipe() {
     mainContent.addEventListener('touchend', handleTouchEnd, { passive: true });
 }
 
-// --- Swipe Gestures for Sidebar ---
 function setupSwipeGestures() {
     if (!('ontouchstart' in window)) return;
 
@@ -247,5 +350,7 @@ window.cart = {
     confirmDelete
 };
 
-// Start the application
+// ==========================================================================
+// 7. Start the application
+// ==========================================================================
 document.addEventListener('DOMContentLoaded', initializeApp);
