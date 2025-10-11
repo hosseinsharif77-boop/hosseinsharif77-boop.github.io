@@ -10,19 +10,21 @@ export function updateCartUI() {
     updateSubmitButton();
 }
 
-export function changeCount(key, delta, event = null) {
+export function changeCount(key, delta, event = null, shouldUpdateUI = true) {
     if (event) event.stopPropagation();
     if (selectedItems[key]) {
         const newCount = selectedItems[key].count + delta;
         if (newCount < 1) {
             requestDeleteItem(key);
+            return;
         } else if (newCount > 100) {
             alert("حداکثر تعداد مجاز ۱۰۰ است.");
         } else {
             selectedItems[key].count = newCount;
-            updateCartUI();
-            if (window.product && window.product.stages[window.product.currentStage] === 'stage-review') {
-                window.ui.populateReviewTable();
+            if (shouldUpdateUI) {
+                updateCartUI();
+                window.ui.updateProductCardSelections();
+
             }
         }
     } else {
@@ -35,14 +37,6 @@ export function requestDeleteItem(key) {
 }
 
 export function confirmDelete(key) {
-    if (selectedItems[key]) {
-        delete selectedItems[key];
-        updateCartUI();
-        if (window.product) {
-            window.product.renderActiveStage();
-            if (window.product.stages[window.product.currentStage] === 'stage-review') {
-                window.ui.populateReviewTable();
-            }
-        }
-    }
+    console.log(`Item ${key} deletion confirmed by UI.`);
+
 }
