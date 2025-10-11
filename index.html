@@ -15,7 +15,7 @@
 <header class="fixed-header">
     <div class="header-content">
         <h1> سنگین کالکشن </h1>
-        <img src="assets/images/5-removebg-preview.png" alt="لوگوی سنگین کالکشن" class="logo">
+        <img src="5-removebg-preview.png" alt="لوگوی سنگین کالکشن" class="logo">
     </div>
 </header>
 <div class="stage-toolbar" id="stage-toolbar">
@@ -27,7 +27,7 @@
 <main id="main-content">
     <section class="stage welcome-stage active" id="stage-welcome">
         <h1>به دنیای سنگ مصنوعی خوش آمدید!</h1>
-        <img src="assets/images/100911-ezgif.com-video-to-gif-converter (1).gif" alt="ست سنگ مصنوعی" class="welcome-image">
+        <img src="background.gif" alt="ست سنگ مصنوعی" class="welcome-image">
         <p>ست محصولات سنگ مصنوعی خود را بسازید. از سینی تا مجسمه، همه چیز را انتخاب کنید و فضایی منحصر به فرد برای خود ایجاد کنید.</p>
     </section>
     <button class="welcome-start-btn" id="start-button">شروع</button>
@@ -154,6 +154,39 @@
 <button class="scroll-top-btn" id="scroll-top-btn" title="برگشت به بالا" style="display: none;">
     <i class="fas fa-arrow-up"></i>
 </button>
+<!-- مودال تایید نهایی سفارش -->
+<div id="submit-order-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="submit-order-modal-title">
+    <div class="modal-content">
+        <h3 id="submit-order-modal-title">تأیید نهایی سفارش</h3>
+        <p>آیا از ارسال سفارش خود مطمئن هستید؟</p>
+        <div class="buttons">
+            <button class="btn-primary" id="confirm-submit-order-btn">بله، ارسال شود</button>
+            <button class="btn-secondary" id="cancel-submit-order-btn">انصراف</button>
+        </div>
+    </div>
+</div>
+
+<!-- مودال سبد خرید خالی -->
+<div id="empty-cart-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="empty-cart-modal-title">
+    <div class="modal-content">
+        <h3 id="empty-cart-modal-title">سبد خرید خالی است!</h3>
+        <p>شما هیچ محصولی را به سبد خرید خود اضافه نکرده‌اید.</p>
+        <div class="buttons">
+            <button class="btn-primary" id="empty-cart-modal-ok-btn">باشه</button>
+        </div>
+    </div>
+</div>
+
+<!-- مودال خطا در ارسال سفارش -->
+<div id="order-error-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="order-error-modal-title">
+    <div class="modal-content">
+        <h3 id="order-error-modal-title">خطا در ارسال سفارش</h3>
+        <p>متأسفانه در ارسال سفارش شما مشکلی پیش آمد. لطفاً دوباره تلاش کنید.</p>
+        <div class="buttons">
+            <button class="btn-primary" id="retry-order-btn">تلاش مجدد</button>
+        </div>
+    </div>
+</div>
 
 <script type="module" src="js/config.js"></script>
 <script type="module" src="js/utils.js"></script>
@@ -163,4 +196,3 @@
 <script type="module" src="js/app.js"></script>
 </body>
 </html>
-
