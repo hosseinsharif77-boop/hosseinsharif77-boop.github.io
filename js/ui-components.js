@@ -450,29 +450,49 @@ export function closeDeleteModal(event) {
 
 
 export function openEmptyCartModal() {
-    elements.emptyCartModal.style.display = 'block';
+    const modal = document.getElementById('empty-cart-modal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
 }
 
 export function closeEmptyCartModal() {
-    elements.emptyCartModal.style.display = 'none';
+    const modal = document.getElementById('empty-cart-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 // --- توابع مودال تایید سفارش ---
 export function openSubmitOrderModal() {
-    elements.submitOrderModal.style.display = 'block';
+    const modal = document.getElementById('submit-order-modal');
+    if (modal) {
+        modal.style.display = 'block';
+    } else {
+        console.error("Modal with ID 'submit-order-modal' not found in the DOM.");
+    }
 }
 
 export function closeSubmitOrderModal() {
-    elements.submitOrderModal.style.display = 'none';
+    const modal = document.getElementById('submit-order-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 // --- توابع مودال خطا ---
 export function openOrderErrorModal() {
-    elements.orderErrorModal.style.display = 'block';
+    const modal = document.getElementById('order-error-modal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
 }
 
 export function closeOrderErrorModal() {
-    elements.orderErrorModal.style.display = 'none';
+    const modal = document.getElementById('order-error-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 // --- تابع مدیریت وضعیت دکمه ---
@@ -985,8 +1005,14 @@ window.ui = {
     closeEditQuantityModal,
     openEditProductModal,
     closeEditProductModal,
-    updateProductCardSelections,  // Add this line
-    setSubmitButtonState, // <-- این را اضافه کنید
-
-
+    updateProductCardSelections,
+    setSubmitButtonState,
+    
+    // --- توابع فراموش شده که باید اضافه شوند ---
+    openSubmitOrderModal,       // اضافه شد
+    closeSubmitOrderModal,       // اضافه شد
+    openEmptyCartModal,          // اضافه شد
+    closeEmptyCartModal,         // اضافه شد
+    openOrderErrorModal,         // اضافه شد
+    closeOrderErrorModal,        // اضافه شد
 };
