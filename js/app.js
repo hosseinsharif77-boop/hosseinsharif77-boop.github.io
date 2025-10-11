@@ -214,7 +214,7 @@ function handleInitialSubmitClick() {
     }
 
     // 3. اگر سبد خالی نبود، مودال تایید را نمایش بده
-    openSubmitOrderModal();
+    window.ui.openSubmitOrderModal(); // <-- اصلاح شده
 }
 
 /**
@@ -233,8 +233,8 @@ function handleFinalSubmit() {
 
     const onError = () => {
         setSubmitButtonState(submitButton, 'error');
-        closeSubmitOrderModal();
-        openOrderErrorModal();
+        window.ui.closeSubmitOrderModal();
+        window.ui.openOrderErrorModal();
     };
 
     // فراخوانی تابع submitOrder از order-manager.js
