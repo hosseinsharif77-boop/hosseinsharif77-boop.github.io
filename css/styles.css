@@ -1120,7 +1120,7 @@ body.sidebar-open .sidebar-cart { transform: translateX(0); }
 
 /* --- Backgrounds --- */
 .main-content-with-bg {
-    background-image: url('../welcome.png');
+    background-image: url('../assets/images/welcome.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
