@@ -102,7 +102,17 @@ export function goToStage(productKey) {
     
     renderActiveStage(stageId, productKeys, config);
     updateNavItems(key, productKeys, config);
-
+    // --- شروع کد اصلاح شده ---
+    // اگر به یک تب محصول برمی‌گردیم (نه صفحه خوشامدگویی یا بازبینی)،
+    // باید وضعیت بصری کارت‌ها را با وضعیت سبد خرید همگام کنیم.
+    // چون گرید دوباره رندر نمی‌شود، باید آپدیت دستی انجام شود.
+    if (stageId !== 'stage-welcome' && stageId !== 'stage-review') {
+        // از یک تایم‌اوت کوتاه استفاده می‌کنیم تا مطمئن شویم المان‌ها در DOM قابل دسترسی هستند.
+        setTimeout(() => {
+            window.ui.updateProductCardSelections();
+        }, 50); // 50 میلی‌ثانیه معمولا کافی است
+    }
+    // --- پایان کد اصلاح شده ---
     const navContainer = document.getElementById('navigation-container');
     if (!navContainer) {
         console.error('❌ Navigation container not found!');
