@@ -34,7 +34,10 @@ const elements = {
     editQuantityValue: document.getElementById('edit-quantity-value'),
     decreaseQuantityBtn: document.getElementById('decrease-quantity'),
     increaseQuantityBtn: document.getElementById('increase-quantity'),
-    deleteItemBtn: document.getElementById('delete-item-btn')
+    deleteItemBtn: document.getElementById('delete-item-btn'),
+    emptyCartModal: document.getElementById('empty-cart-modal'),
+    submitOrderModal: document.getElementById('submit-order-modal'),
+    orderErrorModal: document.getElementById('order-error-modal'),
 };
 
 // --- Cart UI Functions ---
@@ -124,7 +127,9 @@ export function renderActiveStage(stageId, productKeys, config) {
     if (stageId === 'stage-welcome' || stageId === 'stage-review') {
         elements.stageToolbar.style.display = stageId === 'stage-welcome' ? 'none' : 'block';
         if (stageId === 'stage-review') {
-            populateReviewTable();
+            setTimeout(() => {
+                renderReviewCards();
+            }, 0);
         }
     } else {
         elements.stageToolbar.style.display = 'block';
@@ -184,12 +189,23 @@ export function renderProductGrid(productKey, config) {
     optionsDiv.innerHTML = '';
 
     config.products[productKey].items.forEach(item => {
+        // 1. متغیر itemKey باید در ابتدای حلقه تعریف شود
+        const itemKey = `${productKey}-${item.id}`;
+
         const card = createElementWithClass('div', 'product-card');
         card.tabIndex = 0;
 
-        const itemKey = `${productKey}-${item.id}`;
+        // 2. از itemKey برای تنظیم ویژگی استفاده کنید
+        card.setAttribute('data-product-key', itemKey);
+        console.log(`[DEBUG] renderProductGrid: Setting data-product-key="${itemKey}" for card.`);
+
+        // این بخش از کد نیز باید از itemKey استفاده کند
         const isSelected = Object.keys(selectedItems).some(key => key.startsWith(itemKey));
-        if (isSelected) card.classList.add('selected');
+        if (isSelected) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
 
         let colorSwatchesHtml = '';
         if (item.colors && item.colors.length > 0) {
@@ -224,7 +240,6 @@ export function renderProductGrid(productKey, config) {
             this.onerror = null;
         };
 
-        // --- اصلاح شده: استفاده از addEventListener ---
         card.addEventListener('click', () => openColorModal(productKey, item.id, config));
         card.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -236,7 +251,6 @@ export function renderProductGrid(productKey, config) {
         optionsDiv.appendChild(card);
     });
 }
-
 // --- Modal Functions ---
 export function openColorModal(category, id, config) {
     pendingProduct = { category, id };
@@ -312,6 +326,8 @@ export function closeColorModal() {
 
 function selectColor(index) {
     activeColorIndex = index;
+    // این خط اضافه می‌شود تا اسلایدر حرکت کند
+    elements.carouselInner.style.transform = `translateX(-${index * 100}%)`;
     updateUIForSelectedColor();
 }
 
@@ -368,19 +384,13 @@ function updateUIForSelectedColor() {
 }
 
 export function confirmSelection() {
-    // دیگر نیازی به آرگومان config نداریم. مستقیماً از config وارد شده در این فایل استفاده می‌کنیم.
-    
-    // --- شروع کد اصلاح شده ---
-    // بررسی امنیتی روی config محلی این فایل
     if (!config || !config.products) {
         console.error("Config object is missing or malformed in confirmSelection.", config);
         alert("خطا در پردازش سفارش. لطفاً دوباره تلاش کنید.");
         return;
     }
-    // --- پایان کد اصلاح شده ---
     
     const { category, id } = pendingProduct;
-    // استفاده از config محلی
     const product = config.products[category].items.find(item => item.id === id);
 
     selectedColors.forEach(colorEntry => {
@@ -393,8 +403,9 @@ export function confirmSelection() {
                     selectedItems[key].count += colorEntry.quantity;
                 } else {
                     selectedItems[key] = {
-                        // استفاده از config محلی در اینجا هم
-                        category: config.products[category].name,
+                        // *** تغییر مهم: اضافه کردن categoryKey برای پیدا کردن صحیح در config ***
+                        categoryKey: category, // کلید انگلیسی مثل 'tray'
+                        category: config.products[category].name, // نام فارسی مثل 'سینی'
                         model: id,
                         description: product.description,
                         color: hex,
@@ -410,9 +421,9 @@ export function confirmSelection() {
     updateCartUI();
     
     window.preventScrollReset = true;
-    
     window.product.renderActiveStage();
 }
+
 
 export function changeCarouselSlide(delta) {
     currentCarouselIndex = (currentCarouselIndex + delta + currentModalColors.length) % currentModalColors.length;
@@ -421,41 +432,145 @@ export function changeCarouselSlide(delta) {
 }
 
 export function requestDeleteItem(key) {
-    itemToDelete = key;
-    // این بخش را حذف کنید
-    // if (elements.editQuantityModal.style.display === 'block') {
-    //     closeEditQuantityModal();
-    // }
+    // --- شروع تغییر ---
+    // ذخیره کلید در شیء عمومی window.ui تا از همه جا قابل دسترسی باشد
+    window.ui.itemToDelete = key; 
+    // --- پایان تغییر ---
     elements.deleteModal.style.display = 'block';
 }
 
 export function closeDeleteModal(event) {
     if (event) event.stopPropagation();
     elements.deleteModal.style.display = 'none';
-    itemToDelete = null;
+    // --- شروع تغییر ---
+    // پاک کردن کلید پس از بستن مودال
+    window.ui.itemToDelete = null; 
+    // --- پایان تغییر ---
+}
+
+
+export function openEmptyCartModal() {
+    elements.emptyCartModal.style.display = 'block';
+}
+
+export function closeEmptyCartModal() {
+    elements.emptyCartModal.style.display = 'none';
+}
+
+// --- توابع مودال تایید سفارش ---
+export function openSubmitOrderModal() {
+    elements.submitOrderModal.style.display = 'block';
+}
+
+export function closeSubmitOrderModal() {
+    elements.submitOrderModal.style.display = 'none';
+}
+
+// --- توابع مودال خطا ---
+export function openOrderErrorModal() {
+    elements.orderErrorModal.style.display = 'block';
+}
+
+export function closeOrderErrorModal() {
+    elements.orderErrorModal.style.display = 'none';
+}
+
+// --- تابع مدیریت وضعیت دکمه ---
+export function setSubmitButtonState(button, state) {
+    if (!button) return;
+
+    button.classList.remove('btn-primary', 'btn-success', 'btn-error');
+    button.disabled = false;
+
+    switch (state) {
+        case 'loading':
+            button.disabled = true;
+            button.textContent = 'در حال ارسال...';
+            button.classList.add('btn-primary');
+            break;
+        case 'success':
+            button.textContent = 'ارسال شد';
+            button.classList.add('btn-success');
+            break;
+        case 'error':
+            button.textContent = 'خطا در ارسال';
+            button.classList.add('btn-error');
+            setTimeout(() => setSubmitButtonState(button, 'reset'), 3000);
+            break;
+        case 'reset':
+        default:
+            button.textContent = 'ارسال سفارش';
+            button.classList.add('btn-primary');
+            break;
+    }
+}
+
+export function updateProductCardSelections() {
+    console.log("[DEBUG] updateProductCardSelections: Updating all product cards.");
+
+    // پیدا کردن تمام کارت‌های محصول در صفحه
+    const allProductCards = document.querySelectorAll('.product-card');
+    
+    allProductCards.forEach(card => {
+        // گرفتن کلید محصول از ویژگی data
+        const productKey = card.getAttribute('data-product-key');
+        if (!productKey) {
+            console.warn("[DEBUG] updateProductCardSelections: Found a card without data-product-key.", card);
+            return; // از این کارت عبور کن
+        }
+
+        // بررسی اینکه آیا آیتمی از این محصول در سبد وجود دارد
+        const hasSelectedItem = Object.keys(selectedItems).some(key => key.startsWith(`${productKey}-`));
+        
+        console.log(`[DEBUG] updateProductCardSelections: Card for ${productKey} has selected item: ${hasSelectedItem}`);
+
+        // اگر آیتمی وجود داشت، کلاس selected را اضافه کن، در غیر این صورت آن را حذف کن
+        if (hasSelectedItem) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+    });
 }
 
 export function confirmDelete(key) {
-    // --- شروع کد اصلاح شده ---
-    // بررسی دفاعی برای اطمینان از وجود کلید
+    console.log(`[DEBUG] confirmDelete called with key: ${key}`);
+
     if (!key) {
         console.error('confirmDelete called without a valid key.');
         return;
     }
-    // --- پایان کد اصلاح شده ---
 
     if (selectedItems[key]) {
         delete selectedItems[key];
+        console.log(`[DEBUG] Item deleted from selectedItems.`);
+        console.log(`[DEBUG] Remaining selectedItems keys:`, Object.keys(selectedItems));
+
         updateCartUI();
-        if (window.product) {
-            window.product.renderActiveStage();
-            if (window.product.stages[window.product.currentStage] === 'stage-review') {
-                window.ui.populateReviewTable();
+
+        updateProductCardSelections();
+
+
+        // مدیریت مودال ویرایش و بازبینی (کدهای قبلی بدون تغییر باقی می‌ماند)
+        const editModal = document.getElementById('edit-product-modal');
+        if (editModal && editModal.style.display === 'block') {
+            const cardToDelete = document.querySelector(`.edit-color-card .delete-btn[data-key="${key}"]`)?.closest('.edit-color-card');
+            if (cardToDelete) {
+                cardToDelete.remove();
+            }
+            const modalContent = document.getElementById('edit-product-content');
+            if (modalContent && modalContent.children.length === 0) {
+                closeEditProductModal();
             }
         }
+        renderReviewCards();
     } else {
         console.warn(`Item with key "${key}" not found in selectedItems for deletion.`);
     }
+
+    // بستن مودال تایید حذف
+    elements.deleteModal.style.display = 'none';
+    window.ui.itemToDelete = null;
 }
 
 export function populateReviewTable() {
@@ -488,28 +603,243 @@ export function populateReviewTable() {
         cellCount.setAttribute('data-label', 'تعداد');
         cellCount.textContent = item.count;
 
+        // اضافه کردن سلول قیمت تک محصول
+        const cellPrice = row.insertCell();
+        cellPrice.setAttribute('data-label', 'قیمت');
+        cellPrice.className = 'price-cell';
+        cellPrice.innerHTML = `${parseInt(item.price).toLocaleString()} تومان`;
+
+        // اضافه کردن سلول مجموع قیمت
+        const cellTotal = row.insertCell();
+        cellTotal.setAttribute('data-label', 'مجموع');
+        cellTotal.className = 'total-cell';
+        cellTotal.innerHTML = `${itemTotal.toLocaleString()} تومان`;
+
         const cellAction = row.insertCell();
         cellAction.setAttribute('data-label', 'عملیات');
         cellAction.className = 'action-cell';
 
-        // --- شروع کد اصلاح شده ---
-        // ایجاد دکمه به صورت برنامه‌نویسی و اتصال رویداد به صورت امن
+        // ایجاد دکمه ویرایش
         const editButton = document.createElement('button');
         editButton.className = 'edit-btn';
         editButton.title = 'ویرایش';
         editButton.innerHTML = '<i class="fas fa-pencil-alt"></i>';
         
-        // استفاده از addEventListener به جای onclick
         editButton.addEventListener('click', () => {
             window.ui.openEditQuantityModal(key);
         });
         
         cellAction.appendChild(editButton);
-        // --- پایان کد اصلاح شده ---
     });
 
     document.getElementById('total-price').textContent = `${totalPrice.toLocaleString()} تومان`;
 }
+
+export function renderReviewCards() {
+    const reviewContainer = document.getElementById('review-cards-container');
+    if (!reviewContainer) {
+        console.error("Review container with id 'review-cards-container' not found!");
+        return;
+    }
+    
+    reviewContainer.innerHTML = '';
+    let grandTotalPrice = 0;
+
+    const groupedItems = {};
+    Object.keys(selectedItems).forEach(key => {
+        const item = selectedItems[key];
+        const groupKey = `${item.categoryKey}-${item.description}`;
+        
+        if (!groupedItems[groupKey]) {
+            groupedItems[groupKey] = {
+                category: item.category,
+                categoryKey: item.categoryKey,
+                description: item.description,
+                colors: [],
+                totalCount: 0,
+                groupTotalPrice: 0,
+                modelId: item.model
+            };
+        }
+        
+        const priceNum = parseInt(item.price.replace(/[^0-9]/g, '')) || 0;
+        const itemTotal = priceNum * item.count;
+        
+        groupedItems[groupKey].colors.push({
+            hex: item.color,
+            name: item.colorName,
+            count: item.count,
+            unitPrice: priceNum,
+            key: key
+        });
+        
+        groupedItems[groupKey].totalCount += item.count;
+        groupedItems[groupKey].groupTotalPrice += itemTotal;
+        grandTotalPrice += itemTotal;
+    });
+
+    Object.values(groupedItems).forEach(group => {
+        const card = createElementWithClass('div', 'review-item-card');
+        
+        let colorsHtml = '';
+        group.colors.forEach(color => {
+            colorsHtml += `
+                <div class="review-color-swatch" title="${color.name}">
+                    <span class="color-dot" style="background-color: ${color.hex}"></span>
+                    <span class="color-count">${color.count}</span>
+                </div>
+            `;
+        });
+        
+        // --- شروع کد جدید: ساختار HTML جدولی و فشرده ---
+        card.innerHTML = `
+            <div class="item-main-info">
+                <div class="item-details">
+                    <h4>${group.description}</h4>
+                    <p class="review-category">${group.category}</p>
+                </div>
+                <div class="review-item-colors">
+                    ${colorsHtml}
+                </div>
+            </div>
+            <div class="item-side-info">
+                <span class="review-total-count">${group.totalCount} عدد</span>
+                <span class="review-item-price">${group.groupTotalPrice.toLocaleString()} تومان</span>
+                <button class="edit-btn" title="ویرایش این محصول">
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
+            </div>
+        `;
+        // --- پایان کد جدید ---
+        
+        const editBtn = card.querySelector('.edit-btn');
+        editBtn.addEventListener('click', () => {
+            openEditProductModal(group);
+        });
+        
+        reviewContainer.appendChild(card);
+    });
+
+    const totalPriceElement = document.getElementById('total-price');
+    if (totalPriceElement) {
+        totalPriceElement.textContent = `${grandTotalPrice.toLocaleString()} تومان`;
+    }
+}
+
+// تابع جدید برای باز کردن مودال ویرایش محصول
+export function openEditProductModal(group) {
+    const editModal = document.getElementById('edit-product-modal');
+    if (!editModal) return;
+    
+    const modalTitle = document.getElementById('edit-product-title');
+    modalTitle.textContent = `ویرایش ${group.description}`;
+    
+    const modalBody = editModal.querySelector('.modal-body');
+    const modalContent = document.getElementById('edit-product-content');
+    
+    modalContent.innerHTML = ''; // پاک کردن محتوای قبلی رنگ‌ها
+    
+    const product = config.products[group.categoryKey]?.items.find(item => item.id === group.modelId);
+
+    group.colors.forEach(color => {
+        const colorCard = createElementWithClass('div', 'edit-color-card');
+        
+        const colorImage = product?.imagesByColor[color.hex] || 'https://picsum.photos/seed/fallback/150/150';
+        
+        colorCard.innerHTML = `
+            <div class="edit-color-image">
+                <img src="${colorImage}" alt="${color.name}">
+            </div>
+            <div class="edit-color-info">
+                <h5>${color.name}</h5>
+                <div class="edit-color-controls">
+                    <button class="quantity-btn decrease" data-key="${color.key}">-</button>
+                    <span class="quantity-value">${color.count}</span>
+                    <button class="quantity-btn increase" data-key="${color.key}">+</button>
+                    <button class="delete-btn" data-key="${color.key}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        const decreaseBtn = colorCard.querySelector('.decrease');
+        const increaseBtn = colorCard.querySelector('.increase');
+        const deleteBtn = colorCard.querySelector('.delete-btn');
+        const quantityValueSpan = colorCard.querySelector('.quantity-value');
+
+        decreaseBtn.addEventListener('click', () => {
+            const key = decreaseBtn.dataset.key;
+            if (selectedItems[key] && selectedItems[key].count > 1) {
+                changeCount(key, -1, null, false); 
+                quantityValueSpan.textContent = selectedItems[key].count;
+            } else {
+                requestDeleteItem(key);
+            }
+        });
+        
+        increaseBtn.addEventListener('click', () => {
+            const key = increaseBtn.dataset.key;
+            changeCount(key, 1, null, false);
+            quantityValueSpan.textContent = selectedItems[key].count;
+        });
+        
+        deleteBtn.addEventListener('click', () => {
+            const key = deleteBtn.dataset.key;
+            requestDeleteItem(key);
+        });
+        
+        modalContent.appendChild(colorCard);
+    });
+
+    // --- شروع کد جدید: اضافه کردن دکمه‌ها به انتهای modal-body ---
+    
+    // ابتدا هرگونه دکمه قدیمی را حذف می‌کنیم تا از تکرار جلوگیری شود
+    const existingActions = modalBody.querySelector('.modal-actions');
+    if (existingActions) {
+        existingActions.remove();
+    }
+
+    // ایجاد کانتینر برای دکمه‌ها
+    const actionsContainer = createElementWithClass('div', 'modal-actions');
+    actionsContainer.innerHTML = `
+        <button class="btn-secondary" id="edit-modal-cancel-btn">انصراف</button>
+        <button class="btn-primary" id="edit-modal-save-btn">تایید تغییرات</button>
+    `;
+    
+    // اضافه کردن کانتینر دکمه‌ها به انتهای modal-body
+    modalBody.appendChild(actionsContainer);
+
+    // اضافه کردن رویداد کلیک به دکمه تایید
+    document.getElementById('edit-modal-save-btn').addEventListener('click', () => {
+        closeEditProductModal();
+    });
+
+    // اضافه کردن رویداد کلیک به دکمه انصراف
+    document.getElementById('edit-modal-cancel-btn').addEventListener('click', () => {
+        closeEditProductModal();
+    });
+    
+    // --- پایان کد جدید ---
+    
+    editModal.style.display = 'block';
+}
+
+
+export function closeEditProductModal() {
+    const editModal = document.getElementById('edit-product-modal');
+    if (editModal) {
+        editModal.style.display = 'none';
+    }
+    renderReviewCards(); 
+    updateCartUI();
+    
+    // --- شروع تغییر ---
+    // پس از بستن مودال ویرایش، وضعیت کارت‌ها را آپدیت کن
+    updateProductCardSelections();
+    // --- پایان تغییر ---
+}
+
 
 export function openEditQuantityModal(key) {
     currentEditKey = key;
@@ -620,6 +950,25 @@ function setupScrollTopBtn() {
     });
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const closeEditProductModalBtn = document.getElementById('close-edit-product-modal-btn');
+    if (closeEditProductModalBtn) {
+        closeEditProductModalBtn.addEventListener('click', () => {
+            window.ui.closeEditProductModal();
+        });
+    }
+    
+    // اضافه کردن رویداد کلیک به پس‌زمینه مودال برای بستن آن
+    const editProductModal = document.getElementById('edit-product-modal');
+    if (editProductModal) {
+        editProductModal.addEventListener('click', (e) => {
+            if (e.target === editProductModal) {
+                window.ui.closeEditProductModal();
+            }
+        });
+    }
+});
+
 setupScrollTopBtn();
 
 window.ui = {
@@ -633,5 +982,11 @@ window.ui = {
     closeDeleteModal,
     confirmDelete,
     openEditQuantityModal,
-    closeEditQuantityModal
+    closeEditQuantityModal,
+    openEditProductModal,
+    closeEditProductModal,
+    updateProductCardSelections,  // Add this line
+    setSubmitButtonState, // <-- این را اضافه کنید
+
+
 };
